@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <title>เข้าสู่ระบบ | ระบบเกียรติบัตรออนไลน์</title>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&family=Trirong:wght@400;500;600;700&family=Chonburi&family=Mitr:wght@300;400;500&family=Pridi:wght@300;400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      colors: {
+        navy:  { DEFAULT: '#1B2A4A', deep: '#12203B' },
+        gold:  { DEFAULT: '#C9A227', soft: '#E7D7A3' },
+        parchment: '#FAF7F0',
+        ink: '#23272F',
+        line: '#E5E0D5'
+      },
+      fontFamily: {
+        sarabun: ['Sarabun', 'sans-serif'],
+        trirong: ['Trirong', 'serif']
+      }
+    }
+  }
+}
+</script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<style>
+  body { font-family: 'Sarabun', sans-serif; }
+  .cert-rule { border-top: 3px double #C9A227; }
+</style>
+
+</head>
+<body class="bg-parchment min-h-screen flex items-center justify-center px-4">
+
+  <div class="w-full max-w-sm">
+    <div class="text-center mb-6">
+      <div class="w-14 h-14 mx-auto rounded-full border-2 border-gold flex items-center justify-center font-trirong text-gold text-2xl bg-navy">ก</div>
+      <h1 class="font-trirong text-2xl text-navy mt-3 font-semibold">เข้าสู่ระบบเจ้าหน้าที่</h1>
+      <div class="cert-rule w-16 mx-auto mt-3"></div>
+    </div>
+
+    <div class="bg-white border border-line rounded-xl shadow-sm p-6 space-y-4">
+      <div>
+        <label class="block text-sm font-medium mb-1">อีเมล</label>
+        <input id="email" type="email" class="w-full border border-line rounded-lg px-3 py-2.5 focus:ring-2 focus:ring-gold outline-none" placeholder="name@example.com">
+      </div>
+      <div>
+        <label class="block text-sm font-medium mb-1">รหัสผ่าน</label>
+        <input id="password" type="password" class="w-full border border-line rounded-lg px-3 py-2.5 focus:ring-2 focus:ring-gold outline-none" placeholder="••••••••">
+      </div>
+      <button id="loginBtn" class="w-full bg-navy text-white py-2.5 rounded-lg hover:bg-navy-deep transition font-medium">เข้าสู่ระบบ</button>
+      <a href="index.html" class="block text-center text-sm text-gray-500 hover:text-navy">← กลับหน้าค้นหาเกียรติบัตร</a>
+    </div>
+  </div>
+
+  <script src="assets/js/firebase-config.js"></script>
+  <script>
+    async function doLogin() {
+      const email = document.getElementById("email").value.trim();
+      const pass  = document.getElementById("password").value;
+      if (!email || !pass) return Swal.fire({ icon: "warning", title: "กรอกอีเมลและรหัสผ่าน", confirmButtonColor: "#1B2A4A" });
+      Swal.fire({ title: "กำลังตรวจสอบ...", didOpen: () => Swal.showLoading(), allowOutsideClick: false });
+      try {
+        const cred = await auth.signInWithEmailAndPassword(email, pass);
+        // ตรวจ role จาก collection users
+        const u = await db.collection("users").doc(cred.user.uid).get();
+        const role = u.exists ? u.data().role : null;
+        if (role !== "admin" && role !== "staff") {
+          await auth.signOut();
+          return Swal.fire({ icon: "error", title: "บัญชีนี้ไม่มีสิทธิ์เข้าใช้งาน", text: "โปรดติดต่อผู้ดูแลระบบ", confirmButtonColor: "#1B2A4A" });
+        }
+        location.href = "dashboard.html";
+      } catch (e) {
+        Swal.fire({ icon: "error", title: "เข้าสู่ระบบไม่สำเร็จ", text: "อีเมลหรือรหัสผ่านไม่ถูกต้อง", confirmButtonColor: "#1B2A4A" });
+      }
+    }
+    document.getElementById("loginBtn").onclick = doLogin;
+    document.getElementById("password").addEventListener("keydown", e => { if (e.key === "Enter") doLogin(); });
+  </script>
+</body>
+</html>

@@ -1,0 +1,38 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isSignedIn() { return request.auth != null; }
+    function role() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role;
+    }
+    function isAdmin() { return isSignedIn() && role() == 'admin'; }
+    function isStaff() { return isSignedIn() && (role() == 'staff' || role() == 'admin'); }
+
+    // ---------- users : เก็บ role ----------
+    match /users/{uid} {
+      allow read: if isSignedIn() && (request.auth.uid == uid || isAdmin());
+      allow create: if isAdmin()
+                    || (isSignedIn() && request.auth.uid == uid
+                        && request.resource.data.role == 'user');  // สมัครเองได้เฉพาะบทบาท user
+      allow update, delete: if isAdmin();                          // เปลี่ยนบทบาทได้เฉพาะ admin
+    }
+
+    // ---------- activities ----------
+    match /activities/{aid} {
+      // ทุกคน (รวมไม่ล็อกอิน) อ่านได้เฉพาะกิจกรรมที่เผยแพร่ / staff+admin อ่านได้ทั้งหมด
+      allow read: if resource.data.published == true || isStaff();
+      allow create, delete: if isAdmin();                      // กำหนดกิจกรรม = admin
+      // staff แก้ template ได้ แต่ห้ามแก้ published (สิทธิ์ admin)
+      allow update: if isAdmin()
+                    || (isStaff() && request.resource.data.published == resource.data.published);
+
+      // ---------- participants ----------
+      match /participants/{pid} {
+        allow read: if get(/databases/$(database)/documents/activities/$(aid)).data.published == true
+                    || isStaff();
+        allow write: if isStaff();
+      }
+    }
+  }
+}

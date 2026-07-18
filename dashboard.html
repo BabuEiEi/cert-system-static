@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <title>แผงควบคุม | ระบบเกียรติบัตรออนไลน์</title>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&family=Trirong:wght@400;500;600;700&family=Chonburi&family=Mitr:wght@300;400;500&family=Pridi:wght@300;400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      colors: {
+        navy:  { DEFAULT: '#1B2A4A', deep: '#12203B' },
+        gold:  { DEFAULT: '#C9A227', soft: '#E7D7A3' },
+        parchment: '#FAF7F0',
+        ink: '#23272F',
+        line: '#E5E0D5'
+      },
+      fontFamily: {
+        sarabun: ['Sarabun', 'sans-serif'],
+        trirong: ['Trirong', 'serif']
+      }
+    }
+  }
+}
+</script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<style>
+  body { font-family: 'Sarabun', sans-serif; }
+  .cert-rule { border-top: 3px double #C9A227; }
+</style>
+
+  <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
+</head>
+<body class="bg-parchment text-ink min-h-screen">
+
+<header class="bg-navy text-white">
+  <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <div class="w-9 h-9 rounded-full border-2 border-gold flex items-center justify-center font-trirong text-gold">ก</div>
+      <h1 class="font-semibold">แผงควบคุมเกียรติบัตร</h1>
+      <span id="roleBadge" class="text-xs bg-gold text-navy font-medium px-2 py-0.5 rounded-full hidden"></span>
+    </div>
+    <div class="flex items-center gap-3 text-sm">
+      <span id="userEmail" class="text-gold-soft"></span>
+      <button id="logoutBtn" class="border border-gold-soft/50 rounded px-3 py-1.5 hover:bg-gold hover:text-navy transition">ออกจากระบบ</button>
+    </div>
+  </div>
+</header>
+
+<main class="max-w-7xl mx-auto px-4 py-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+  <!-- ซ้าย: กิจกรรม -->
+  <aside class="lg:col-span-3 space-y-3">
+    <div class="bg-white border border-line rounded-xl p-4">
+      <div class="flex items-center justify-between mb-3">
+        <h2 class="font-semibold text-navy">กิจกรรม</h2>
+        <button id="addActivityBtn" class="admin-only hidden text-sm bg-navy text-white px-3 py-1.5 rounded-lg hover:bg-navy-deep">+ เพิ่ม</button>
+      </div>
+      <ul id="activityList" class="space-y-1 text-sm"></ul>
+    </div>
+    <div class="bg-white border border-line rounded-xl p-4 admin-only hidden">
+      <h2 class="font-semibold text-navy mb-2">ผู้ใช้งานระบบ</h2>
+      <p class="text-xs text-gray-500 mb-2">เพิ่มบัญชี Staff/Admin หรือปรับบทบาทได้จากหน้านี้โดยตรง ไม่ต้องเข้า Firebase Console</p>
+      <div class="space-y-2">
+        <button id="addUserBtn" class="w-full text-sm bg-navy text-white px-3 py-1.5 rounded-lg hover:bg-navy-deep transition">+ เพิ่มผู้ใช้งานใหม่</button>
+        <button id="manageUsersBtn" class="w-full text-sm border border-navy text-navy px-3 py-1.5 rounded-lg hover:bg-navy hover:text-white transition">จัดการบทบาทที่มีอยู่</button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ขวา: พื้นที่ทำงาน -->
+  <section class="lg:col-span-9">
+    <div id="emptyState" class="bg-white border border-line rounded-xl p-12 text-center text-gray-500">
+      เลือกกิจกรรมทางซ้าย หรือให้ผู้ดูแลระบบสร้างกิจกรรมใหม่ เพื่อเริ่มออกแบบเกียรติบัตร
+    </div>
+
+    <div id="workspace" class="hidden space-y-6">
+      <!-- แถบชื่อกิจกรรม -->
+      <div class="bg-white border border-line rounded-xl p-4 flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <h2 id="wsActivityName" class="font-trirong text-xl text-navy font-semibold"></h2>
+          <p id="wsActivityMeta" class="text-sm text-gray-500"></p>
+        </div>
+        <div class="flex gap-2">
+          <label class="admin-only hidden flex items-center gap-2 text-sm border border-line rounded-lg px-3 py-2 cursor-pointer">
+            <input type="checkbox" id="publishToggle" class="accent-gold w-4 h-4"> เผยแพร่ให้ค้นหาได้
+          </label>
+          <button id="deleteActivityBtn" class="admin-only hidden text-sm text-red-600 border border-red-200 rounded-lg px-3 py-2 hover:bg-red-50">ลบกิจกรรม</button>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
+        <!-- ตั้งค่ารูปแบบ -->
+        <div class="bg-white border border-line rounded-xl p-5 space-y-4">
+          <h3 class="font-semibold text-navy border-b border-line pb-2">ตั้งค่ารูปแบบเกียรติบัตร</h3>
+
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="text-sm font-medium">สีพื้นหลัง</label>
+              <input type="color" id="bgColor" class="w-full h-10 border border-line rounded-lg cursor-pointer">
+            </div>
+            <div>
+              <label class="text-sm font-medium">สีกรอบ/เส้น</label>
+              <input type="color" id="borderColor" class="w-full h-10 border border-line rounded-lg cursor-pointer">
+            </div>
+          </div>
+
+          <div>
+            <label class="text-sm font-medium">พื้นหลังจากรูปภาพ (URL)</label>
+            <input type="url" id="bgImageUrl" placeholder="https://... (เว้นว่างเพื่อใช้สีพื้น)" class="w-full border border-line rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-gold outline-none">
+          </div>
+
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="text-sm font-medium">ฟอนต์</label>
+              <select id="fontFamily" class="w-full border border-line rounded-lg px-3 py-2 text-sm bg-white">
+                <option value="Sarabun">Sarabun (ราชการ)</option>
+                <option value="Trirong">Trirong (เซอริฟ)</option>
+                <option value="Chonburi">Chonburi (หัวเรื่อง)</option>
+                <option value="Mitr">Mitr</option>
+                <option value="Pridi">Pridi</option>
+              </select>
+            </div>
+            <div>
+              <label class="text-sm font-medium">ขนาดชื่อผู้รับ</label>
+              <input type="number" id="nameSize" min="40" max="140" class="w-full border border-line rounded-lg px-3 py-2 text-sm">
+            </div>
+          </div>
+
+          <div>
+            <label class="text-sm font-medium">โลโก้ (URL)</label>
+            <input type="url" id="logoUrl" placeholder="https://..." class="w-full border border-line rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-gold outline-none">
+          </div>
+
+          <div>
+            <label class="text-sm font-medium">ข้อความหัวเรื่อง</label>
+            <input type="text" id="titleText" class="w-full border border-line rounded-lg px-3 py-2 text-sm">
+          </div>
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="text-sm font-medium">ข้อความเนื้อหา</label>
+              <input type="text" id="bodyText" class="w-full border border-line rounded-lg px-3 py-2 text-sm">
+            </div>
+            <div>
+              <label class="text-sm font-medium">บรรทัดวันที่</label>
+              <input type="text" id="dateLine" class="w-full border border-line rounded-lg px-3 py-2 text-sm">
+            </div>
+          </div>
+
+          <!-- ลายเซ็น -->
+          <div class="border-t border-line pt-3">
+            <div class="flex items-center justify-between mb-2">
+              <label class="text-sm font-medium">ลายเซ็น (สูงสุด 3 คน)</label>
+              <button id="addSigBtn" class="text-sm text-navy border border-navy rounded px-2 py-1 hover:bg-navy hover:text-white transition">+ เพิ่มลายเซ็น</button>
+            </div>
+            <div id="sigList" class="space-y-2"></div>
+          </div>
+
+          <div class="flex gap-2 pt-2">
+            <button id="saveTplBtn" class="flex-1 bg-navy text-white py-2.5 rounded-lg hover:bg-navy-deep font-medium">บันทึกรูปแบบ</button>
+            <button id="previewBtn" class="border border-navy text-navy px-4 rounded-lg hover:bg-navy hover:text-white transition">พรีวิว</button>
+          </div>
+        </div>
+
+        <!-- พรีวิว + รายชื่อ -->
+        <div class="space-y-6">
+          <div class="bg-white border border-line rounded-xl p-5">
+            <h3 class="font-semibold text-navy border-b border-line pb-2 mb-3">ตัวอย่างเกียรติบัตร</h3>
+            <canvas id="previewCanvas" class="w-full border border-line rounded-lg"></canvas>
+          </div>
+
+          <div class="bg-white border border-line rounded-xl p-5 space-y-3">
+            <h3 class="font-semibold text-navy border-b border-line pb-2">รายชื่อผู้เข้าอบรม (<span id="pCount">0</span>)</h3>
+            <textarea id="namesInput" rows="4" placeholder="วางรายชื่อ 1 คนต่อบรรทัด เช่น&#10;นางสาวสมศรี ใจดี&#10;นายสมชาย เก่งมาก" class="w-full border border-line rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-gold outline-none"></textarea>
+            <div class="flex flex-wrap gap-2">
+              <button id="importNamesBtn" class="bg-navy text-white text-sm px-4 py-2 rounded-lg hover:bg-navy-deep">นำเข้ารายชื่อ</button>
+              <button id="genAllBtn" class="bg-gold text-navy text-sm font-medium px-4 py-2 rounded-lg hover:opacity-90">สร้าง PNG ทั้งหมด (ZIP)</button>
+            </div>
+            <ul id="participantList" class="text-sm divide-y divide-line max-h-64 overflow-y-auto"></ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<canvas id="genCanvas" class="hidden"></canvas>
+
+<script src="assets/js/firebase-config.js"></script>
+<script src="assets/js/cert-engine.js"></script>
+<script src="assets/js/dashboard.js"></script>
+</body>
+</html>
