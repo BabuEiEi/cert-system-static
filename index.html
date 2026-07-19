@@ -12,11 +12,11 @@ tailwind.config = {
   theme: {
     extend: {
       colors: {
-        navy:  { DEFAULT: '#0e6efd', deep: '#0b5ed7' },
-        gold:  { DEFAULT: '#ffffff', soft: '#eaf2ff' },
-        parchment: '#f4f7f9',
-        ink: '#2A2E35',
-        line: '#DFE4EB'
+        navy:  { DEFAULT: '#18212F', deep: '#0F1622' },
+        gold:  { DEFAULT: '#E5E7EB', soft: '#CBD5E1' },
+        parchment: '#FAFAFB',
+        ink: '#1F2937',
+        line: '#E5E7EB'
       },
       fontFamily: {
         sarabun: ['Sarabun', 'sans-serif'],
@@ -32,7 +32,7 @@ tailwind.config = {
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <style>
   body { font-family: 'Sarabun', sans-serif; }
-  .cert-rule { border-top: 3px double #0e6efd; }
+  .cert-rule { border-top: 2px solid #18212F; }
 </style>
 
 </head>
@@ -55,7 +55,7 @@ tailwind.config = {
   <!-- Hero + Search -->
   <main class="flex-1">
     <section class="max-w-3xl mx-auto px-4 pt-16 pb-10 text-center">
-      <p class="font-trirong text-navy tracking-widest text-sm mb-2">ระบบค้นหาเกียรติบัตร กลุ่มงานส่งเสริมและพัฒนาการวัดและประเมินผล</p>
+      <p class="tracking-[0.25em] text-xs text-gray-400 mb-3">CERTIFICATE OF ACHIEVEMENT</p>
       <h2 class="font-trirong text-3xl md:text-4xl text-navy font-semibold">ค้นหาเกียรติบัตรของท่าน</h2>
       <div class="cert-rule w-24 mx-auto my-5"></div>
       <p class="text-gray-600 mb-8">เลือกกิจกรรม แล้วพิมพ์ชื่อ–นามสกุลเพื่อค้นหาและดาวน์โหลดเกียรติบัตรเป็นไฟล์ PNG</p>

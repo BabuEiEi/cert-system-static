@@ -43,7 +43,7 @@ async function loadActivities() {
     li.innerHTML = `
       <button class="w-full text-left px-3 py-2 rounded-lg transition ${active ? "bg-navy text-white" : "hover:bg-parchment"}">
         ${doc.data().name}
-        ${doc.data().published ? '<span class="text-xs text-gold"> ●</span>' : ""}
+        ${doc.data().published ? '<span class="text-xs text-navy"> ●</span>' : ""}
       </button>`;
     li.querySelector("button").onclick = () => openActivity({ id: doc.id, ...doc.data() });
     list.appendChild(li);
