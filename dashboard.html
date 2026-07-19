@@ -48,10 +48,106 @@ tailwind.config = {
     </div>
     <div class="flex items-center gap-3 text-sm">
       <span id="userEmail" class="text-gold-soft"></span>
+      <button id="guideBtn" class="flex items-center gap-1.5 border border-gold-soft/50 rounded px-3 py-1.5 hover:bg-gold hover:text-navy transition" title="คู่มือการใช้งาน">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="w-4 h-4">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25"/>
+        </svg>
+        <span class="hidden sm:inline">คู่มือ</span>
+      </button>
       <button id="logoutBtn" class="border border-gold-soft/50 rounded px-3 py-1.5 hover:bg-gold hover:text-navy transition">ออกจากระบบ</button>
     </div>
   </div>
 </header>
+
+<!-- คู่มือการใช้งานสำหรับ Admin/Staff -->
+<div id="guideModal" class="hidden fixed inset-0 z-50 bg-black/50 p-3 sm:p-6" role="dialog" aria-modal="true" aria-labelledby="guideTitle">
+  <div class="bg-parchment max-w-5xl mx-auto h-full rounded-lg shadow-xl flex flex-col overflow-hidden">
+    <div class="bg-navy text-white px-5 py-4 flex items-center justify-between gap-4">
+      <div>
+        <h2 id="guideTitle" class="font-trirong text-xl font-semibold">คู่มือระบบเกียรติบัตรออนไลน์</h2>
+        <p class="text-xs text-gold-soft mt-1">สำหรับผู้ดูแลระบบและเจ้าหน้าที่</p>
+      </div>
+      <button id="closeGuideBtn" class="w-9 h-9 flex items-center justify-center border border-gold-soft/50 rounded hover:bg-white hover:text-navy transition" title="ปิดคู่มือ" aria-label="ปิดคู่มือ">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+        </svg>
+      </button>
+    </div>
+
+    <div class="overflow-y-auto px-5 py-5 sm:px-7 sm:py-6 space-y-7 text-sm leading-7">
+      <section>
+        <h3 class="text-lg font-semibold text-navy mb-3">เริ่มต้นใช้งาน</h3>
+        <ol class="grid md:grid-cols-2 gap-3">
+          <li class="bg-white border border-line rounded-lg p-4"><strong>1. เลือกกิจกรรม</strong><br><span class="text-gray-600">เลือกจากรายการด้านซ้าย หากยังไม่มี กิจกรรมใหม่ต้องสร้างโดย Admin</span></li>
+          <li class="bg-white border border-line rounded-lg p-4"><strong>2. ออกแบบเกียรติบัตร</strong><br><span class="text-gray-600">ตั้งค่าพื้นหลัง โลโก้ ข้อความ ฟอนต์ สี และลายเซ็น แล้วกดพรีวิว</span></li>
+          <li class="bg-white border border-line rounded-lg p-4"><strong>3. บันทึกรูปแบบ</strong><br><span class="text-gray-600">กด “บันทึกรูปแบบ” ก่อนเผยแพร่ เพื่อให้หน้าเว็บสาธารณะใช้ค่าล่าสุด</span></li>
+          <li class="bg-white border border-line rounded-lg p-4"><strong>4. นำเข้ารายชื่อ</strong><br><span class="text-gray-600">วางชื่อหนึ่งคนต่อหนึ่งบรรทัด ตรวจปีและเลขที่ถัดไป แล้วจึงนำเข้า</span></li>
+          <li class="bg-white border border-line rounded-lg p-4"><strong>5. ตรวจสอบไฟล์</strong><br><span class="text-gray-600">ทดลองพรีวิวและสร้าง PNG อย่างน้อยหนึ่งรายก่อนสร้าง ZIP ทั้งหมด</span></li>
+          <li class="bg-white border border-line rounded-lg p-4"><strong>6. เผยแพร่</strong><br><span class="text-gray-600">Admin เปิด “เผยแพร่ให้ค้นหาได้” เมื่อรูปแบบและรายชื่อถูกต้องแล้ว</span></li>
+        </ol>
+      </section>
+
+      <section>
+        <h3 class="text-lg font-semibold text-navy mb-3">สิทธิ์ของแต่ละบทบาท</h3>
+        <div class="overflow-x-auto border border-line rounded-lg bg-white">
+          <table class="w-full min-w-[640px] text-left">
+            <thead class="bg-gray-100 text-navy"><tr><th class="px-4 py-2">งาน</th><th class="px-4 py-2">Admin</th><th class="px-4 py-2">Staff</th></tr></thead>
+            <tbody class="divide-y divide-line">
+              <tr><td class="px-4 py-2">สร้าง/ลบกิจกรรม</td><td class="px-4 py-2 text-emerald-700">ทำได้</td><td class="px-4 py-2 text-gray-400">ทำไม่ได้</td></tr>
+              <tr><td class="px-4 py-2">เผยแพร่หรือยกเลิกเผยแพร่</td><td class="px-4 py-2 text-emerald-700">ทำได้</td><td class="px-4 py-2 text-gray-400">ทำไม่ได้</td></tr>
+              <tr><td class="px-4 py-2">จัดการบัญชีและบทบาท</td><td class="px-4 py-2 text-emerald-700">ทำได้</td><td class="px-4 py-2 text-gray-400">ทำไม่ได้</td></tr>
+              <tr><td class="px-4 py-2">แก้รูปแบบ/นำเข้ารายชื่อ/สร้าง PNG</td><td class="px-4 py-2 text-emerald-700">ทำได้</td><td class="px-4 py-2 text-emerald-700">ทำได้</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="grid md:grid-cols-2 gap-5">
+        <div>
+          <h3 class="text-lg font-semibold text-navy mb-2">เลขที่เกียรติบัตร</h3>
+          <ul class="list-disc pl-5 text-gray-700 space-y-1">
+            <li>เว้นช่องเลขเริ่มต้นว่าง ระบบจะต่อจากเลขล่าสุดอัตโนมัติ</li>
+            <li>ระบบเก็บตัวนับแยกตามปี พ.ศ. และใช้ transaction ป้องกันเลขซ้ำ</li>
+            <li>ห้ามกรอกเลขเริ่มต้นต่ำกว่าเลขถัดไป ระบบจะไม่อนุญาต</li>
+            <li>การลบรายชื่อไม่ทำให้เลขล่าสุดย้อนกลับ เพื่อไม่ให้นำเลขเดิมมาใช้ซ้ำ</li>
+            <li>ตรวจคำนำหน้า ปี พ.ศ. และตัวเลือกเลขไทยก่อนนำเข้าเสมอ</li>
+          </ul>
+        </div>
+        <div>
+          <h3 class="text-lg font-semibold text-navy mb-2">หน้าเว็บสำหรับผู้รับ</h3>
+          <ul class="list-disc pl-5 text-gray-700 space-y-1">
+            <li>แสดงเฉพาะกิจกรรมที่ Admin เผยแพร่แล้ว</li>
+            <li>ค้นชื่อหรือนามสกุลเพียงบางส่วนได้</li>
+            <li>ดูตัวอย่าง ดาวน์โหลด PNG และแจ้งแก้ไขผ่าน Google Form ได้</li>
+            <li>หากแก้รูปแบบแล้ว ต้องกดบันทึกก่อน หน้าเว็บสาธารณะจึงเห็นค่าล่าสุด</li>
+          </ul>
+        </div>
+      </section>
+
+      <section class="border border-amber-200 bg-amber-50 rounded-lg p-5">
+        <h3 class="text-lg font-semibold text-amber-900 mb-2">ข้อจำกัดและข้อควรระวัง</h3>
+        <ul class="list-disc pl-5 text-amber-950 space-y-1">
+          <li>นำเข้ารายชื่อได้สูงสุด <strong>450 คนต่อครั้ง</strong> แต่หนึ่งกิจกรรมนำเข้าได้หลายรอบ</li>
+          <li>กิจกรรมที่มีหลายพันรายชื่ออาจโหลดช้าบนอุปกรณ์พกพา เพราะ Dashboard และหน้าค้นหาดึงรายชื่อมาประมวลผลในเบราว์เซอร์</li>
+          <li>การสร้าง ZIP จำนวนมากใช้หน่วยความจำสูง แนะนำแบ่งสร้างเป็นช่วงเมื่อมีรายชื่อจำนวนมาก</li>
+          <li>รูปพื้นหลัง โลโก้ และลายเซ็นต้องเป็น URL ที่เปิดอ่านจากภายนอกได้และรองรับ CORS มิฉะนั้น PNG อาจสร้างไม่สำเร็จ</li>
+          <li>การลบกิจกรรมจะลบรายชื่อและรูปแบบทั้งหมดถาวร ควรตรวจสอบและสำรองข้อมูลก่อน</li>
+          <li>รายชื่อหรือเลขที่ซ้ำซึ่งเกิดก่อนระบบตัวนับอัตโนมัติจะไม่ถูกแก้ย้อนหลัง ต้องตรวจและแก้ข้อมูลเดิมแยกต่างหาก</li>
+        </ul>
+      </section>
+
+      <section>
+        <h3 class="text-lg font-semibold text-navy mb-2">แนวทางก่อนเผยแพร่</h3>
+        <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-2 text-gray-700">
+          <p class="border border-line rounded-lg px-3 py-2 bg-white">ตรวจการสะกดชื่อ</p>
+          <p class="border border-line rounded-lg px-3 py-2 bg-white">ตรวจเลขที่และปี</p>
+          <p class="border border-line rounded-lg px-3 py-2 bg-white">ทดลองดาวน์โหลด PNG</p>
+          <p class="border border-line rounded-lg px-3 py-2 bg-white">เปิดเผยแพร่เมื่อพร้อม</p>
+        </div>
+      </section>
+    </div>
+  </div>
+</div>
 
 <main class="max-w-7xl mx-auto px-4 py-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
 
@@ -247,8 +343,8 @@ tailwind.config = {
 
 <canvas id="genCanvas" class="hidden"></canvas>
 
-<script src="assets/js/firebase-config.js?v=10"></script>
-<script src="assets/js/cert-engine.js?v=10"></script>
-<script src="assets/js/dashboard.js?v=10"></script>
+<script src="assets/js/firebase-config.js?v=11"></script>
+<script src="assets/js/cert-engine.js?v=11"></script>
+<script src="assets/js/dashboard.js?v=11"></script>
 </body>
 </html>

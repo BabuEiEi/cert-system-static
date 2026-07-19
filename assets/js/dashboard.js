@@ -31,6 +31,23 @@ document.getElementById("logoutBtn").onclick = async () => {
   await auth.signOut(); location.href = "login.html";
 };
 
+const guideModal = document.getElementById("guideModal");
+
+function setGuideOpen(open) {
+  guideModal.classList.toggle("hidden", !open);
+  document.body.classList.toggle("overflow-hidden", open);
+  if (open) document.getElementById("closeGuideBtn").focus();
+}
+
+document.getElementById("guideBtn").onclick = () => setGuideOpen(true);
+document.getElementById("closeGuideBtn").onclick = () => setGuideOpen(false);
+guideModal.addEventListener("click", event => {
+  if (event.target === guideModal) setGuideOpen(false);
+});
+document.addEventListener("keydown", event => {
+  if (event.key === "Escape" && !guideModal.classList.contains("hidden")) setGuideOpen(false);
+});
+
 // ---------- 2) กิจกรรม ----------
 async function loadActivities() {
   const list = document.getElementById("activityList");
