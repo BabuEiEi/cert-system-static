@@ -12,11 +12,11 @@ tailwind.config = {
   theme: {
     extend: {
       colors: {
-        navy:  { DEFAULT: '#1B2A4A', deep: '#12203B' },
-        gold:  { DEFAULT: '#C9A227', soft: '#E7D7A3' },
-        parchment: '#FAF7F0',
-        ink: '#23272F',
-        line: '#E5E0D5'
+        navy:  { DEFAULT: '#0e6efd', deep: '#0b5ed7' },
+        gold:  { DEFAULT: '#ffffff', soft: '#eaf2ff' },
+        parchment: '#f4f7f9',
+        ink: '#2A2E35',
+        line: '#DFE4EB'
       },
       fontFamily: {
         sarabun: ['Sarabun', 'sans-serif'],
@@ -32,7 +32,7 @@ tailwind.config = {
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <style>
   body { font-family: 'Sarabun', sans-serif; }
-  .cert-rule { border-top: 3px double #C9A227; }
+  .cert-rule { border-top: 3px double #0e6efd; }
 </style>
 
 </head>
@@ -40,7 +40,7 @@ tailwind.config = {
 
   <div class="w-full max-w-sm">
     <div class="text-center mb-6">
-      <div class="w-14 h-14 mx-auto rounded-full border-2 border-gold flex items-center justify-center font-trirong text-gold text-2xl bg-navy">ก</div>
+      <img src="https://cdn.jsdelivr.net/gh/BabuEiEi/images/obec.png" alt="โลโก้หน่วยงาน" class="w-20 h-20 mx-auto object-contain">
       <h1 class="font-trirong text-2xl text-navy mt-3 font-semibold">เข้าสู่ระบบเจ้าหน้าที่</h1>
       <div class="cert-rule w-16 mx-auto mt-3"></div>
     </div>
@@ -48,11 +48,11 @@ tailwind.config = {
     <div class="bg-white border border-line rounded-xl shadow-sm p-6 space-y-4">
       <div>
         <label class="block text-sm font-medium mb-1">อีเมล</label>
-        <input id="email" type="email" class="w-full border border-line rounded-lg px-3 py-2.5 focus:ring-2 focus:ring-gold outline-none" placeholder="name@example.com">
+        <input id="email" type="email" class="w-full border border-line rounded-lg px-3 py-2.5 focus:ring-2 focus:ring-navy outline-none" placeholder="name@example.com">
       </div>
       <div>
         <label class="block text-sm font-medium mb-1">รหัสผ่าน</label>
-        <input id="password" type="password" class="w-full border border-line rounded-lg px-3 py-2.5 focus:ring-2 focus:ring-gold outline-none" placeholder="••••••••">
+        <input id="password" type="password" class="w-full border border-line rounded-lg px-3 py-2.5 focus:ring-2 focus:ring-navy outline-none" placeholder="••••••••">
       </div>
       <button id="loginBtn" class="w-full bg-navy text-white py-2.5 rounded-lg hover:bg-navy-deep transition font-medium">เข้าสู่ระบบ</button>
       <a href="index.html" class="block text-center text-sm text-gray-500 hover:text-navy">← กลับหน้าค้นหาเกียรติบัตร</a>

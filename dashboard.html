@@ -12,11 +12,11 @@ tailwind.config = {
   theme: {
     extend: {
       colors: {
-        navy:  { DEFAULT: '#1B2A4A', deep: '#12203B' },
-        gold:  { DEFAULT: '#C9A227', soft: '#E7D7A3' },
-        parchment: '#FAF7F0',
-        ink: '#23272F',
-        line: '#E5E0D5'
+        navy:  { DEFAULT: '#0e6efd', deep: '#0b5ed7' },
+        gold:  { DEFAULT: '#ffffff', soft: '#eaf2ff' },
+        parchment: '#f4f7f9',
+        ink: '#2A2E35',
+        line: '#DFE4EB'
       },
       fontFamily: {
         sarabun: ['Sarabun', 'sans-serif'],
@@ -32,7 +32,7 @@ tailwind.config = {
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <style>
   body { font-family: 'Sarabun', sans-serif; }
-  .cert-rule { border-top: 3px double #C9A227; }
+  .cert-rule { border-top: 3px double #0e6efd; }
 </style>
 
   <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
@@ -42,7 +42,7 @@ tailwind.config = {
 <header class="bg-navy text-white">
   <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
     <div class="flex items-center gap-3">
-      <div class="w-9 h-9 rounded-full border-2 border-gold flex items-center justify-center font-trirong text-gold">ก</div>
+      <img src="https://cdn.jsdelivr.net/gh/BabuEiEi/images/obec.png" alt="โลโก้หน่วยงาน" class="w-10 h-10 object-contain bg-white rounded-full p-0.5">
       <h1 class="font-semibold">แผงควบคุมเกียรติบัตร</h1>
       <span id="roleBadge" class="text-xs bg-gold text-navy font-medium px-2 py-0.5 rounded-full hidden"></span>
     </div>
@@ -89,7 +89,7 @@ tailwind.config = {
         </div>
         <div class="flex gap-2">
           <label class="admin-only hidden flex items-center gap-2 text-sm border border-line rounded-lg px-3 py-2 cursor-pointer">
-            <input type="checkbox" id="publishToggle" class="accent-gold w-4 h-4"> เผยแพร่ให้ค้นหาได้
+            <input type="checkbox" id="publishToggle" class="accent-navy w-4 h-4"> เผยแพร่ให้ค้นหาได้
           </label>
           <button id="deleteActivityBtn" class="admin-only hidden text-sm text-red-600 border border-red-200 rounded-lg px-3 py-2 hover:bg-red-50">ลบกิจกรรม</button>
         </div>
@@ -113,7 +113,7 @@ tailwind.config = {
 
           <div>
             <label class="text-sm font-medium">พื้นหลังจากรูปภาพ (URL)</label>
-            <input type="url" id="bgImageUrl" placeholder="https://... (เว้นว่างเพื่อใช้สีพื้น)" class="w-full border border-line rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-gold outline-none">
+            <input type="url" id="bgImageUrl" placeholder="https://... (เว้นว่างเพื่อใช้สีพื้น)" class="w-full border border-line rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-navy outline-none">
           </div>
 
           <div class="grid grid-cols-2 gap-3">
@@ -135,7 +135,7 @@ tailwind.config = {
 
           <div>
             <label class="text-sm font-medium">โลโก้ (URL)</label>
-            <input type="url" id="logoUrl" placeholder="https://..." class="w-full border border-line rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-gold outline-none">
+            <input type="url" id="logoUrl" placeholder="https://..." class="w-full border border-line rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-navy outline-none">
           </div>
 
           <div>
@@ -177,10 +177,10 @@ tailwind.config = {
 
           <div class="bg-white border border-line rounded-xl p-5 space-y-3">
             <h3 class="font-semibold text-navy border-b border-line pb-2">รายชื่อผู้เข้าอบรม (<span id="pCount">0</span>)</h3>
-            <textarea id="namesInput" rows="4" placeholder="วางรายชื่อ 1 คนต่อบรรทัด เช่น&#10;นางสาวสมศรี ใจดี&#10;นายสมชาย เก่งมาก" class="w-full border border-line rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-gold outline-none"></textarea>
+            <textarea id="namesInput" rows="4" placeholder="วางรายชื่อ 1 คนต่อบรรทัด เช่น&#10;นางสาวสมศรี ใจดี&#10;นายสมชาย เก่งมาก" class="w-full border border-line rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-navy outline-none"></textarea>
             <div class="flex flex-wrap gap-2">
               <button id="importNamesBtn" class="bg-navy text-white text-sm px-4 py-2 rounded-lg hover:bg-navy-deep">นำเข้ารายชื่อ</button>
-              <button id="genAllBtn" class="bg-gold text-navy text-sm font-medium px-4 py-2 rounded-lg hover:opacity-90">สร้าง PNG ทั้งหมด (ZIP)</button>
+              <button id="genAllBtn" class="bg-navy text-white text-sm font-medium px-4 py-2 rounded-lg hover:bg-navy-deep">สร้าง PNG ทั้งหมด (ZIP)</button>
             </div>
             <ul id="participantList" class="text-sm divide-y divide-line max-h-64 overflow-y-auto"></ul>
           </div>
