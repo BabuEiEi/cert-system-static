@@ -133,6 +133,7 @@ function fillForm() {
   F("activityBold").checked = tpl.activityBold !== false; F("activityItalic").checked = !!tpl.activityItalic;
   // เลขที่เกียรติบัตร
   F("certPrefix").value = tpl.certPrefix || "";
+  F("certYear").value = tpl.certYear || String(new Date().getFullYear() + 543);
   F("certThaiDigits").checked = tpl.certThaiDigits !== false;
   renderSigList();
 }
@@ -160,6 +161,7 @@ function readForm() {
   tpl.activityBold = F("activityBold").checked; tpl.activityItalic = F("activityItalic").checked;
   // เลขที่เกียรติบัตร: เก็บลง template เพื่อให้มีผลกับทุกคน รวมถึงหน้าค้นหา
   tpl.certPrefix = F("certPrefix").value.trim();
+  tpl.certYear = F("certYear").value.trim();
   tpl.certThaiDigits = F("certThaiDigits").checked;
 }
 
@@ -203,13 +205,55 @@ F("saveTplBtn").onclick = async () => {
 };
 
 // ---------- 4) รายชื่อผู้เข้าอบรม ----------
+function normalizeDigits(value) {
+  return String(value || "").replace(/[๐-๙]/g, digit => String("๐๑๒๓๔๕๖๗๘๙".indexOf(digit)));
+}
+
+function getCertNumber(certNo, year) {
+  const match = normalizeDigits(certNo).match(/(\d+)\s*\/\s*(\d+)\s*$/);
+  return match && match[2] === year ? parseInt(match[1], 10) : 0;
+}
+
+function getExistingMaxCertNumber(year) {
+  return participants.reduce((max, participant) => Math.max(max, getCertNumber(participant.certNo, year)), 0);
+}
+
+function getNextCertNumber(year) {
+  const saved = parseInt(currentActivity?.certCounters?.[year], 10) || 0;
+  return Math.max(saved, getExistingMaxCertNumber(year)) + 1;
+}
+
+function updateNextCertNumber() {
+  if (!currentActivity) return;
+  const year = normalizeDigits(F("certYear").value.trim());
+  const status = F("certSequenceStatus");
+  if (!/^\d{4}$/.test(year)) {
+    status.textContent = "กรุณาระบุปี พ.ศ. 4 หลัก เช่น 2569";
+    status.className = "text-xs text-red-500";
+    return;
+  }
+  const next = getNextCertNumber(year);
+  const displayTpl = {
+    ...tpl,
+    certPrefix: F("certPrefix").value.trim(),
+    certThaiDigits: F("certThaiDigits").checked
+  };
+  status.textContent = `เลขที่ถัดไป: ${formatCertNo(displayTpl, `${String(next).padStart(3, "0")}/${year}`)}`;
+  status.className = "text-xs text-emerald-700 font-medium";
+}
+
 async function loadParticipants() {
   participants = [];
   const snap = await db.collection("activities").doc(currentActivity.id)
     .collection("participants").orderBy("certNo").get();
   snap.forEach(d => participants.push({ id: d.id, ...d.data() }));
   renderParticipants();
+  updateNextCertNumber();
 }
+
+F("certYear").addEventListener("input", updateNextCertNumber);
+F("certPrefix").addEventListener("input", updateNextCertNumber);
+F("certThaiDigits").addEventListener("change", updateNextCertNumber);
 
 function renderParticipants() {
   const ul = F("participantList");
@@ -236,21 +280,67 @@ function renderParticipants() {
 F("importNamesBtn").onclick = async () => {
   const lines = F("namesInput").value.split("\n").map(s => s.trim()).filter(Boolean);
   if (!lines.length) return Swal.fire({ icon: "warning", title: "วางรายชื่อก่อนนำเข้า", confirmButtonColor: "#1B2A4A" });
-  Swal.fire({ title: "กำลังนำเข้า...", didOpen: () => Swal.showLoading(), allowOutsideClick: false });
-  const col = db.collection("activities").doc(currentActivity.id).collection("participants");
-  const year = (F("certYear").value.trim() || String(new Date().getFullYear() + 543));
-  const startVal = parseInt(F("certStart").value);
-  let no = Number.isFinite(startVal) && startVal > 0 ? startVal - 1 : participants.length;
-  const batch = db.batch();
-  lines.forEach(name => {
-    no++;
-    // เก็บเลขที่เป็นเลขอารบิกล้วน — คำนำหน้า/เลขไทยจะถูกจัดรูปแบบตอนวาดด้วย formatCertNo
-    batch.set(col.doc(), { name, certNo: `${String(no).padStart(3, "0")}/${year}` });
-  });
-  await batch.commit();
-  F("namesInput").value = "";
-  await loadParticipants();
-  Swal.fire({ icon: "success", title: `นำเข้าแล้ว ${lines.length} รายชื่อ`, timer: 1600, showConfirmButton: false });
+  if (lines.length > 450) return Swal.fire({ icon: "warning", title: "นำเข้าได้ครั้งละไม่เกิน 450 รายชื่อ", confirmButtonColor: "#1B2A4A" });
+
+  const year = normalizeDigits(F("certYear").value.trim());
+  if (!/^\d{4}$/.test(year)) {
+    return Swal.fire({ icon: "warning", title: "ปี พ.ศ. ไม่ถูกต้อง", text: "กรุณากรอกปี พ.ศ. 4 หลัก เช่น 2569", confirmButtonColor: "#1B2A4A" });
+  }
+
+  const requestedStart = parseInt(F("certStart").value, 10);
+  const existingMax = getExistingMaxCertNumber(year);
+  const activityRef = db.collection("activities").doc(currentActivity.id);
+  const col = activityRef.collection("participants");
+  let assignedStart = 0;
+  let assignedEnd = 0;
+
+  Swal.fire({ title: "กำลังจองเลขที่และนำเข้า...", didOpen: () => Swal.showLoading(), allowOutsideClick: false });
+  try {
+    await db.runTransaction(async transaction => {
+      const activityDoc = await transaction.get(activityRef);
+      const counters = activityDoc.data().certCounters || {};
+      const savedMax = parseInt(counters[year], 10) || 0;
+      const automaticStart = Math.max(savedMax, existingMax) + 1;
+
+      if (Number.isFinite(requestedStart) && requestedStart > 0 && requestedStart < automaticStart) {
+        throw new Error(`เลขเริ่มต้น ${requestedStart} ถูกใช้แล้ว เลขที่ถัดไปคือ ${automaticStart}`);
+      }
+
+      assignedStart = Number.isFinite(requestedStart) && requestedStart > 0 ? requestedStart : automaticStart;
+      assignedEnd = assignedStart + lines.length - 1;
+      const update = {
+        [`certCounters.${year}`]: assignedEnd,
+        lastCertImport: {
+          year,
+          start: assignedStart,
+          end: assignedEnd,
+          count: lines.length,
+          importedBy: currentUser.uid,
+          importedAt: firebase.firestore.FieldValue.serverTimestamp()
+        }
+      };
+      transaction.update(activityRef, update);
+      lines.forEach((name, index) => {
+        const number = assignedStart + index;
+        transaction.set(col.doc(), { name, certNo: `${String(number).padStart(3, "0")}/${year}` });
+      });
+    });
+
+    currentActivity.certCounters = { ...(currentActivity.certCounters || {}), [year]: assignedEnd };
+    currentActivity.lastCertImport = { year, start: assignedStart, end: assignedEnd, count: lines.length };
+    F("namesInput").value = "";
+    F("certStart").value = "";
+    await loadParticipants();
+    Swal.fire({
+      icon: "success",
+      title: `นำเข้าแล้ว ${lines.length} รายชื่อ`,
+      text: `ใช้เลขที่ ${String(assignedStart).padStart(3, "0")}–${String(assignedEnd).padStart(3, "0")}/${year}`,
+      timer: 2200,
+      showConfirmButton: false
+    });
+  } catch (error) {
+    Swal.fire({ icon: "error", title: "นำเข้ารายชื่อไม่สำเร็จ", text: error.message, confirmButtonColor: "#1B2A4A" });
+  }
 };
 
 // ---------- 5) สร้าง PNG ----------

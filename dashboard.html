@@ -221,14 +221,15 @@ tailwind.config = {
             </div>
             <div class="grid grid-cols-2 gap-3">
               <div>
-                <label class="text-xs text-gray-500">เลขที่เกียรติบัตรเริ่มต้น</label>
-                <input type="number" id="certStart" min="1" placeholder="ต่อจากเดิมอัตโนมัติ" class="w-full border border-line rounded-lg px-3 py-2 text-sm">
+                <label class="text-xs text-gray-500">เลขที่เริ่มต้น (ไม่บังคับ)</label>
+                <input type="number" id="certStart" min="1" placeholder="เว้นว่างเพื่อต่ออัตโนมัติ" class="w-full border border-line rounded-lg px-3 py-2 text-sm">
               </div>
               <div>
                 <label class="text-xs text-gray-500">ปี พ.ศ. บนเลขที่</label>
                 <input type="text" id="certYear" placeholder="เช่น 2569" class="w-full border border-line rounded-lg px-3 py-2 text-sm">
               </div>
             </div>
+            <p id="certSequenceStatus" class="text-xs text-gray-500">กำลังตรวจสอบเลขที่ถัดไป...</p>
             <label class="flex items-center gap-2 text-xs text-gray-600 cursor-pointer">
               <input type="checkbox" id="certThaiDigits" checked class="accent-navy"> แสดงเลขที่ด้วยเลขไทย (เช่น ๐๐๑/๒๕๖๙)
             </label>
@@ -246,8 +247,8 @@ tailwind.config = {
 
 <canvas id="genCanvas" class="hidden"></canvas>
 
-<script src="assets/js/firebase-config.js?v=3"></script>
-<script src="assets/js/cert-engine.js?v=3"></script>
-<script src="assets/js/dashboard.js?v=3"></script>
+<script src="assets/js/firebase-config.js?v=10"></script>
+<script src="assets/js/cert-engine.js?v=10"></script>
+<script src="assets/js/dashboard.js?v=10"></script>
 </body>
 </html>
