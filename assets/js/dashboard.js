@@ -131,6 +131,9 @@ function fillForm() {
   F("bodyBold").checked = !!tpl.bodyBold; F("bodyItalic").checked = !!tpl.bodyItalic;
   F("activitySize").value = tpl.activitySize || 46; F("activityColor").value = tpl.activityColor || "#1B2A4A";
   F("activityBold").checked = tpl.activityBold !== false; F("activityItalic").checked = !!tpl.activityItalic;
+  // เลขที่เกียรติบัตร
+  F("certPrefix").value = tpl.certPrefix || "";
+  F("certThaiDigits").checked = tpl.certThaiDigits !== false;
   renderSigList();
 }
 
@@ -155,6 +158,9 @@ function readForm() {
   tpl.bodyBold = F("bodyBold").checked; tpl.bodyItalic = F("bodyItalic").checked;
   tpl.activitySize = parseInt(F("activitySize").value) || 46; tpl.activityColor = F("activityColor").value;
   tpl.activityBold = F("activityBold").checked; tpl.activityItalic = F("activityItalic").checked;
+  // เลขที่เกียรติบัตร: เก็บลง template เพื่อให้มีผลกับทุกคน รวมถึงหน้าค้นหา
+  tpl.certPrefix = F("certPrefix").value.trim();
+  tpl.certThaiDigits = F("certThaiDigits").checked;
 }
 
 function renderSigList() {
@@ -213,7 +219,7 @@ function renderParticipants() {
     const li = document.createElement("li");
     li.className = "py-2 flex items-center justify-between";
     li.innerHTML = `
-      <span>${p.certNo ? `<span class="text-gray-400 text-xs mr-2">${p.certNo}</span>` : ""}${p.name}</span>
+      <span>${p.certNo ? `<span class="text-gray-400 text-xs mr-2">${formatCertNo(tpl, p.certNo)}</span>` : ""}${p.name}</span>
       <span class="flex gap-2">
         <button class="one text-navy hover:underline text-xs">PNG</button>
         <button class="del text-red-500 hover:underline text-xs">ลบ</button>
@@ -233,19 +239,13 @@ F("importNamesBtn").onclick = async () => {
   Swal.fire({ title: "กำลังนำเข้า...", didOpen: () => Swal.showLoading(), allowOutsideClick: false });
   const col = db.collection("activities").doc(currentActivity.id).collection("participants");
   const year = (F("certYear").value.trim() || String(new Date().getFullYear() + 543));
-  const prefix = F("certPrefix").value.trim();
-  const useThaiDigits = F("certThaiDigits").checked;
-  // แปลงเลขอารบิกเป็นเลขไทย เช่น 001/2569 → ๐๐๑/๒๕๖๙
-  const toThaiDigits = s => String(s).replace(/[0-9]/g, d => "๐๑๒๓๔๕๖๗๘๙"[d]);
   const startVal = parseInt(F("certStart").value);
   let no = Number.isFinite(startVal) && startVal > 0 ? startVal - 1 : participants.length;
   const batch = db.batch();
   lines.forEach(name => {
     no++;
-    let certNo = `${String(no).padStart(3, "0")}/${year}`;
-    if (useThaiDigits) certNo = toThaiDigits(certNo);
-    if (prefix) certNo = `${prefix} ${certNo}`;
-    batch.set(col.doc(), { name, certNo });
+    // เก็บเลขที่เป็นเลขอารบิกล้วน — คำนำหน้า/เลขไทยจะถูกจัดรูปแบบตอนวาดด้วย formatCertNo
+    batch.set(col.doc(), { name, certNo: `${String(no).padStart(3, "0")}/${year}` });
   });
   await batch.commit();
   F("namesInput").value = "";

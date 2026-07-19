@@ -33,6 +33,8 @@ function defaultTemplate() {
     bodySize: 40,
     bodyColor: "#23272F",
     bodyBold: false, bodyItalic: false,
+    certPrefix: "",           // คำนำหน้าเลขที่ เช่น "สพม.พลอต"
+    certThaiDigits: true,      // แสดงเลขที่ด้วยเลขไทย
     signatures: [
       // { imageUrl, name, position }
     ]
@@ -72,6 +74,17 @@ function drawLines(ctx, text, cx, y, size, lineGap, maxWidth) {
     y += size + lineGap;
   }
   return y;
+}
+
+// จัดรูปแบบเลขที่เกียรติบัตรตาม template: แปลงเป็นเลขไทย + เติมคำนำหน้า
+// เช่น "005/2569" → "สพม.พลอต ๐๐๕/๒๕๖๙"
+function formatCertNo(tpl, certNo) {
+  let s = String(certNo || "").trim();
+  if (!s) return "";
+  if (tpl.certThaiDigits !== false) s = s.replace(/[0-9]/g, d => "๐๑๒๓๔๕๖๗๘๙"[d]);
+  const prefix = (tpl.certPrefix || "").trim();
+  if (prefix && !s.startsWith(prefix)) s = prefix + " " + s;
+  return s;
 }
 
 // สร้าง font string ตามสไตล์ (หนา/เอียง)
@@ -186,12 +199,13 @@ async function renderCertificate(canvas, tpl, personName, certNo = "") {
     }
   }
 
-  // 8) เลขที่เกียรติบัตร (มุมขวาบน)
-  if (certNo) {
+  // 8) เลขที่เกียรติบัตร (มุมขวาบน) — จัดรูปแบบตาม template (คำนำหน้า + เลขไทย)
+  const certNoText = formatCertNo(tpl, certNo);
+  if (certNoText) {
     ctx.textAlign = "right";
     ctx.fillStyle = "#6B7280";
     ctx.font = `400 26px "Sarabun"`;
-    ctx.fillText("เลขที่ " + certNo, CERT_W - 100, 130);
+    ctx.fillText("เลขที่ " + certNoText, CERT_W - 100, 130);
     ctx.textAlign = "center";
   }
 }

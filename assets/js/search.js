@@ -70,7 +70,7 @@ function renderResults(rows, q) {
     card.innerHTML = `
       <div>
         <p class="font-semibold text-navy">${r.name}</p>
-        <p class="text-sm text-gray-600">${act.name || "-"} ${r.certNo ? "· เลขที่ " + r.certNo : ""}</p>
+        <p class="text-sm text-gray-600">${act.name || "-"} ${r.certNo ? "· เลขที่ " + formatCertNo(act.template || {}, r.certNo) : ""}</p>
       </div>
       <button class="dl-btn bg-navy text-white font-medium px-5 py-2.5 rounded-lg hover:bg-navy-deep transition">
         ดาวน์โหลด PNG
