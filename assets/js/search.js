@@ -3,9 +3,11 @@
 // โครงสร้างข้อมูล: activities/{aid} + activities/{aid}/participants/{pid}
 // ============================================================
 
-const activitySelect = document.getElementById("activitySelect");
+const activityInput = document.getElementById("activityInput");
+const activityDropdown = document.getElementById("activityDropdown");
 const resultsEl = document.getElementById("results");
 let activitiesCache = {};
+let selectedActivityId = "";   // "" = ทุกกิจกรรม
 
 // โหลดรายการกิจกรรมที่เผยแพร่แล้ว
 // หมายเหตุ: ไม่ใช้ orderBy ร่วมกับ where เพื่อเลี่ยง composite index — เรียงลำดับฝั่ง client แทน
@@ -15,14 +17,51 @@ async function loadActivities() {
   const acts = [];
   snap.forEach(doc => acts.push({ id: doc.id, ...doc.data() }));
   acts.sort((a, b) => (b.createdAt?.toMillis?.() || 0) - (a.createdAt?.toMillis?.() || 0));
-  acts.forEach(act => {
-    activitiesCache[act.id] = act;
-    const opt = document.createElement("option");
-    opt.value = act.id;
-    opt.textContent = act.name;
-    activitySelect.appendChild(opt);
-  });
+  acts.forEach(act => { activitiesCache[act.id] = act; });
 }
+
+// ---------- combobox ค้นหา/เลือกกิจกรรม ----------
+function renderActivityDropdown(keyword = "") {
+  const kw = keyword.trim().toLowerCase();
+  const acts = Object.values(activitiesCache)
+    .filter(a => !kw || (a.name || "").toLowerCase().includes(kw));
+  activityDropdown.innerHTML = "";
+
+  // ตัวเลือก "ทุกกิจกรรม"
+  const all = document.createElement("div");
+  all.className = "px-3 py-2.5 cursor-pointer hover:bg-parchment text-sm" + (selectedActivityId === "" ? " font-semibold text-navy" : "");
+  all.textContent = "— ทุกกิจกรรม —";
+  all.onmousedown = () => selectActivity("", "");
+  activityDropdown.appendChild(all);
+
+  if (!acts.length && kw) {
+    const empty = document.createElement("div");
+    empty.className = "px-3 py-2.5 text-sm text-gray-400";
+    empty.textContent = "ไม่พบกิจกรรมที่ค้นหา";
+    activityDropdown.appendChild(empty);
+  }
+  acts.forEach(a => {
+    const item = document.createElement("div");
+    item.className = "px-3 py-2.5 cursor-pointer hover:bg-parchment text-sm border-t border-line" + (selectedActivityId === a.id ? " font-semibold text-navy bg-parchment" : "");
+    item.textContent = a.name || "-";
+    item.onmousedown = () => selectActivity(a.id, a.name);
+    activityDropdown.appendChild(item);
+  });
+  activityDropdown.classList.remove("hidden");
+}
+
+function selectActivity(id, name) {
+  selectedActivityId = id;
+  activityInput.value = name || "";
+  activityDropdown.classList.add("hidden");
+}
+
+activityInput.addEventListener("focus", () => renderActivityDropdown(activityInput.value));
+activityInput.addEventListener("input", () => {
+  selectedActivityId = "";           // พิมพ์ใหม่ = ยกเลิกตัวที่เลือกไว้
+  renderActivityDropdown(activityInput.value);
+});
+activityInput.addEventListener("blur", () => setTimeout(() => activityDropdown.classList.add("hidden"), 150));
 
 // ค้นหา: เลือกกิจกรรม → ค้นใน subcollection / ทุกกิจกรรม → collectionGroup
 async function search() {
@@ -30,7 +69,7 @@ async function search() {
   if (!q) return Swal.fire({ icon: "warning", title: "กรุณากรอกชื่อ–นามสกุล", confirmButtonColor: "#1B2A4A" });
 
   Swal.fire({ title: "กำลังค้นหา...", didOpen: () => Swal.showLoading(), allowOutsideClick: false });
-  const aid = activitySelect.value;
+  const aid = selectedActivityId;
   let rows = [];
 
   try {

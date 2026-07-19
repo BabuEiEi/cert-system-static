@@ -63,9 +63,12 @@ tailwind.config = {
       <div class="bg-white border border-line rounded-xl shadow-sm p-6 text-left space-y-4">
         <div>
           <label class="block text-sm font-medium mb-1">กิจกรรม</label>
-          <select id="activitySelect" class="w-full border border-line rounded-lg px-3 py-2.5 bg-white focus:ring-2 focus:ring-navy outline-none">
-            <option value="">— ทุกกิจกรรม —</option>
-          </select>
+          <div class="relative">
+            <input id="activityInput" type="text" placeholder="พิมพ์เพื่อค้นหากิจกรรม หรือคลิกเพื่อเลือก (เว้นว่าง = ทุกกิจกรรม)"
+                   autocomplete="off"
+                   class="w-full border border-line rounded-lg px-3 py-2.5 bg-white focus:ring-2 focus:ring-navy outline-none">
+            <div id="activityDropdown" class="hidden absolute z-10 mt-1 w-full bg-white border border-line rounded-lg shadow-lg max-h-60 overflow-y-auto"></div>
+          </div>
         </div>
         <div>
           <label class="block text-sm font-medium mb-1">ชื่อ–นามสกุล</label>
@@ -91,8 +94,8 @@ tailwind.config = {
   <!-- canvas ซ่อนไว้ใช้ generate PNG ตอนดาวน์โหลด -->
   <canvas id="certCanvas" class="hidden"></canvas>
 
-  <script src="assets/js/firebase-config.js?v=3"></script>
-  <script src="assets/js/cert-engine.js?v=3"></script>
-  <script src="assets/js/search.js?v=3"></script>
+  <script src="assets/js/firebase-config.js?v=4"></script>
+  <script src="assets/js/cert-engine.js?v=4"></script>
+  <script src="assets/js/search.js?v=4"></script>
 </body>
 </html>
