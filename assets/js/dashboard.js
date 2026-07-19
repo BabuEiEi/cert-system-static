@@ -123,12 +123,12 @@ function fillForm() {
   F("dateLine").value = tpl.dateLine;
   F("activityText").value = tpl.activityText || "";
   // ตารางจัดรูปแบบตัวอักษร
-  F("titleSize").value = tpl.titleSize;       F("titleColor").value = tpl.titleColor;
-  F("titleBold").checked = !!tpl.titleBold;   F("titleItalic").checked = !!tpl.titleItalic;
-  F("nameSize").value = tpl.nameSize;         F("nameColor").value = tpl.nameColor;
+  F("titleSize").value = tpl.titleSize; F("titleColor").value = tpl.titleColor;
+  F("titleBold").checked = !!tpl.titleBold; F("titleItalic").checked = !!tpl.titleItalic;
+  F("nameSize").value = tpl.nameSize; F("nameColor").value = tpl.nameColor;
   F("nameBold").checked = tpl.nameBold !== false; F("nameItalic").checked = !!tpl.nameItalic;
-  F("bodySize").value = tpl.bodySize;         F("bodyColor").value = tpl.bodyColor;
-  F("bodyBold").checked = !!tpl.bodyBold;     F("bodyItalic").checked = !!tpl.bodyItalic;
+  F("bodySize").value = tpl.bodySize; F("bodyColor").value = tpl.bodyColor;
+  F("bodyBold").checked = !!tpl.bodyBold; F("bodyItalic").checked = !!tpl.bodyItalic;
   F("activitySize").value = tpl.activitySize || 46; F("activityColor").value = tpl.activityColor || "#1B2A4A";
   F("activityBold").checked = tpl.activityBold !== false; F("activityItalic").checked = !!tpl.activityItalic;
   renderSigList();
@@ -147,14 +147,14 @@ function readForm() {
   tpl.activityText = F("activityText").value;
   tpl.activityLine = tpl.activityText.trim() || (currentActivity ? currentActivity.name : "");
   // ตารางจัดรูปแบบตัวอักษร
-  tpl.titleSize = parseInt(F("titleSize").value) || 44;   tpl.titleColor = F("titleColor").value;
-  tpl.titleBold = F("titleBold").checked;                 tpl.titleItalic = F("titleItalic").checked;
-  tpl.nameSize = parseInt(F("nameSize").value) || 88;     tpl.nameColor = F("nameColor").value;
-  tpl.nameBold = F("nameBold").checked;                   tpl.nameItalic = F("nameItalic").checked;
-  tpl.bodySize = parseInt(F("bodySize").value) || 40;     tpl.bodyColor = F("bodyColor").value;
-  tpl.bodyBold = F("bodyBold").checked;                   tpl.bodyItalic = F("bodyItalic").checked;
+  tpl.titleSize = parseInt(F("titleSize").value) || 44; tpl.titleColor = F("titleColor").value;
+  tpl.titleBold = F("titleBold").checked; tpl.titleItalic = F("titleItalic").checked;
+  tpl.nameSize = parseInt(F("nameSize").value) || 88; tpl.nameColor = F("nameColor").value;
+  tpl.nameBold = F("nameBold").checked; tpl.nameItalic = F("nameItalic").checked;
+  tpl.bodySize = parseInt(F("bodySize").value) || 40; tpl.bodyColor = F("bodyColor").value;
+  tpl.bodyBold = F("bodyBold").checked; tpl.bodyItalic = F("bodyItalic").checked;
   tpl.activitySize = parseInt(F("activitySize").value) || 46; tpl.activityColor = F("activityColor").value;
-  tpl.activityBold = F("activityBold").checked;           tpl.activityItalic = F("activityItalic").checked;
+  tpl.activityBold = F("activityBold").checked; tpl.activityItalic = F("activityItalic").checked;
 }
 
 function renderSigList() {
@@ -233,12 +233,19 @@ F("importNamesBtn").onclick = async () => {
   Swal.fire({ title: "กำลังนำเข้า...", didOpen: () => Swal.showLoading(), allowOutsideClick: false });
   const col = db.collection("activities").doc(currentActivity.id).collection("participants");
   const year = (F("certYear").value.trim() || String(new Date().getFullYear() + 543));
+  const prefix = F("certPrefix").value.trim();
+  const useThaiDigits = F("certThaiDigits").checked;
+  // แปลงเลขอารบิกเป็นเลขไทย เช่น 001/2569 → ๐๐๑/๒๕๖๙
+  const toThaiDigits = s => String(s).replace(/[0-9]/g, d => "๐๑๒๓๔๕๖๗๘๙"[d]);
   const startVal = parseInt(F("certStart").value);
   let no = Number.isFinite(startVal) && startVal > 0 ? startVal - 1 : participants.length;
   const batch = db.batch();
   lines.forEach(name => {
     no++;
-    batch.set(col.doc(), { name, certNo: `${String(no).padStart(3, "0")}/${year}` });
+    let certNo = `${String(no).padStart(3, "0")}/${year}`;
+    if (useThaiDigits) certNo = toThaiDigits(certNo);
+    if (prefix) certNo = `${prefix} ${certNo}`;
+    batch.set(col.doc(), { name, certNo });
   });
   await batch.commit();
   F("namesInput").value = "";
@@ -340,7 +347,7 @@ document.getElementById("addUserBtn").onclick = async () => {
     if (e.code === "auth/email-already-in-use") msg = "อีเมลนี้มีบัญชีอยู่แล้วในระบบ ใช้ปุ่ม 'จัดการบทบาทที่มีอยู่' แทน";
     if (e.code === "auth/weak-password") msg = "รหัสผ่านสั้นเกินไป ต้องมีอย่างน้อย 6 ตัวอักษร";
     Swal.fire({ icon: "error", title: "สร้างบัญชีไม่สำเร็จ", text: msg, confirmButtonColor: "#1B2A4A" });
-    try { await secondaryApp.delete(); } catch (_) {}
+    try { await secondaryApp.delete(); } catch (_) { }
   }
 };
 
