@@ -8,15 +8,18 @@ const resultsEl = document.getElementById("results");
 let activitiesCache = {};
 
 // โหลดรายการกิจกรรมที่เผยแพร่แล้ว
+// หมายเหตุ: ไม่ใช้ orderBy ร่วมกับ where เพื่อเลี่ยง composite index — เรียงลำดับฝั่ง client แทน
 async function loadActivities() {
   const snap = await db.collection("activities")
-    .where("published", "==", true)
-    .orderBy("createdAt", "desc").get();
-  snap.forEach(doc => {
-    activitiesCache[doc.id] = { id: doc.id, ...doc.data() };
+    .where("published", "==", true).get();
+  const acts = [];
+  snap.forEach(doc => acts.push({ id: doc.id, ...doc.data() }));
+  acts.sort((a, b) => (b.createdAt?.toMillis?.() || 0) - (a.createdAt?.toMillis?.() || 0));
+  acts.forEach(act => {
+    activitiesCache[act.id] = act;
     const opt = document.createElement("option");
-    opt.value = doc.id;
-    opt.textContent = doc.data().name;
+    opt.value = act.id;
+    opt.textContent = act.name;
     activitySelect.appendChild(opt);
   });
 }
