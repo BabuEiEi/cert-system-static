@@ -6,6 +6,7 @@
 const activityInput = document.getElementById("activityInput");
 const activityDropdown = document.getElementById("activityDropdown");
 const resultsEl = document.getElementById("results");
+const CORRECTION_FORM_URL = "https://forms.gle/PtGVH3WBmHRZLerT9";
 let activitiesCache = {};
 let selectedActivityId = "";   // "" = ทุกกิจกรรม
 
@@ -159,11 +160,15 @@ async function viewCert(row, act) {
       imageAlt: "ตัวอย่างเกียรติบัตร",
       width: "52rem",
       showCancelButton: true,
+      showDenyButton: true,
       confirmButtonText: "ดาวน์โหลด PNG",
+      denyButtonText: "แจ้งแก้ไขข้อมูล",
       cancelButtonText: "ปิด",
-      confirmButtonColor: "#1B2A4A"
+      confirmButtonColor: "#1B2A4A",
+      denyButtonColor: "#B45309"
     });
     if (res.isConfirmed) downloadCanvasPNG(canvas, `เกียรติบัตร-${row.name}`);
+    if (res.isDenied) window.open(CORRECTION_FORM_URL, "_blank", "noopener,noreferrer");
   } catch (e) {
     Swal.fire({ icon: "error", title: "สร้างตัวอย่างไม่สำเร็จ", text: e.message, confirmButtonColor: "#1B2A4A" });
   }
