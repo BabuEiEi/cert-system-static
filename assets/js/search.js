@@ -183,6 +183,26 @@ async function downloadCert(row, act) {
   }
 }
 
-document.getElementById("searchBtn").onclick = search;
-document.getElementById("nameInput").addEventListener("keydown", e => { if (e.key === "Enter") search(); });
+const nameInput = document.getElementById("nameInput");
+const clearSearchBtn = document.getElementById("clearSearchBtn");
+
+document.getElementById("searchBtn").onclick = async () => {
+  await search();
+  if (nameInput.value.trim()) clearSearchBtn.classList.remove("hidden");
+};
+nameInput.addEventListener("keydown", async e => {
+  if (e.key === "Enter") {
+    await search();
+    if (nameInput.value.trim()) clearSearchBtn.classList.remove("hidden");
+  }
+});
+clearSearchBtn.onclick = () => {
+  nameInput.value = "";
+  selectedActivityId = "";
+  activityInput.value = ALL_LABEL;
+  activityDropdown.classList.add("hidden");
+  resultsEl.innerHTML = "";
+  clearSearchBtn.classList.add("hidden");
+  nameInput.focus();
+};
 loadActivities();

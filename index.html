@@ -76,6 +76,13 @@ tailwind.config = {
             <input id="nameInput" type="text" placeholder="เช่น นางสาวสมศรี ใจดี"
                    class="flex-1 border border-line rounded-lg px-3 py-2.5 focus:ring-2 focus:ring-navy outline-none">
             <button id="searchBtn" class="bg-navy text-white px-6 rounded-lg hover:bg-navy-deep transition font-medium">ค้นหา</button>
+            <button id="clearSearchBtn" type="button"
+                    class="hidden border border-line text-gray-600 px-3 rounded-lg hover:border-navy hover:text-navy transition"
+                    title="ล้างการค้นหา" aria-label="ล้างการค้นหา">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="w-5 h-5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+              </svg>
+            </button>
           </div>
         </div>
       </div>
@@ -94,8 +101,8 @@ tailwind.config = {
   <!-- canvas ซ่อนไว้ใช้ generate PNG ตอนดาวน์โหลด -->
   <canvas id="certCanvas" class="hidden"></canvas>
 
-  <script src="assets/js/firebase-config.js?v=7"></script>
-  <script src="assets/js/cert-engine.js?v=7"></script>
-  <script src="assets/js/search.js?v=7"></script>
+  <script src="assets/js/firebase-config.js?v=8"></script>
+  <script src="assets/js/cert-engine.js?v=8"></script>
+  <script src="assets/js/search.js?v=8"></script>
 </body>
 </html>
