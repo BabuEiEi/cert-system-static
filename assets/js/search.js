@@ -21,6 +21,8 @@ async function loadActivities() {
 }
 
 // ---------- combobox ค้นหา/เลือกกิจกรรม ----------
+const ALL_LABEL = "— ทุกกิจกรรม —";
+
 function renderActivityDropdown(keyword = "") {
   const kw = keyword.trim().toLowerCase();
   const acts = Object.values(activitiesCache)
@@ -30,8 +32,9 @@ function renderActivityDropdown(keyword = "") {
   // ตัวเลือก "ทุกกิจกรรม"
   const all = document.createElement("div");
   all.className = "px-3 py-2.5 cursor-pointer hover:bg-parchment text-sm" + (selectedActivityId === "" ? " font-semibold text-navy" : "");
-  all.textContent = "— ทุกกิจกรรม —";
-  all.onmousedown = () => selectActivity("", "");
+  all.textContent = ALL_LABEL;
+  // ใช้ mousedown + preventDefault กัน input เสีย focus ก่อนคลิกทำงาน
+  all.addEventListener("mousedown", e => { e.preventDefault(); selectActivity("", ""); });
   activityDropdown.appendChild(all);
 
   if (!acts.length && kw) {
@@ -44,7 +47,7 @@ function renderActivityDropdown(keyword = "") {
     const item = document.createElement("div");
     item.className = "px-3 py-2.5 cursor-pointer hover:bg-parchment text-sm border-t border-line" + (selectedActivityId === a.id ? " font-semibold text-navy bg-parchment" : "");
     item.textContent = a.name || "-";
-    item.onmousedown = () => selectActivity(a.id, a.name);
+    item.addEventListener("mousedown", e => { e.preventDefault(); selectActivity(a.id, a.name); });
     activityDropdown.appendChild(item);
   });
   activityDropdown.classList.remove("hidden");
@@ -52,11 +55,16 @@ function renderActivityDropdown(keyword = "") {
 
 function selectActivity(id, name) {
   selectedActivityId = id;
-  activityInput.value = name || "";
+  // เลือก "ทุกกิจกรรม" → แสดงข้อความให้เห็นชัดว่าเลือกแล้ว
+  activityInput.value = id ? name : ALL_LABEL;
   activityDropdown.classList.add("hidden");
+  activityInput.blur();
 }
 
-activityInput.addEventListener("focus", () => renderActivityDropdown(activityInput.value));
+activityInput.addEventListener("focus", () => {
+  activityInput.select();                 // คลิกแล้วเลือกข้อความเดิมทั้งหมด พิมพ์ทับได้ทันที
+  renderActivityDropdown("");             // แสดงรายการทั้งหมดเมื่อเปิด
+});
 activityInput.addEventListener("input", () => {
   selectedActivityId = "";           // พิมพ์ใหม่ = ยกเลิกตัวที่เลือกไว้
   renderActivityDropdown(activityInput.value);
