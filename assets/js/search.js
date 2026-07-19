@@ -123,8 +123,8 @@ function renderResults(rows, q) {
     card.innerHTML = `
       <div class="flex-1">
         <p class="font-semibold text-navy">${r.name}</p>
-        <p class="text-sm text-gray-600">${act.name || "-"}</p>
-        ${r.certNo ? `<p class="text-sm text-gray-500">เลขที่ ${formatCertNo(act.template || {}, r.certNo)}</p>` : ""}
+        <p class="text-sm text-gray-600 leading-relaxed">${act.name || "-"}</p>
+        ${r.certNo ? `<p class="text-sm text-gray-500 leading-relaxed mt-1">เลขที่ ${formatCertNo(act.template || {}, r.certNo)}</p>` : ""}
       </div>
       <div class="flex sm:flex-col gap-2 shrink-0">
         <button class="view-btn flex items-center justify-center gap-2 border border-navy text-navy font-medium px-4 py-2 rounded-lg hover:bg-navy hover:text-white transition" title="ดูเกียรติบัตร">
