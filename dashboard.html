@@ -42,7 +42,7 @@ tailwind.config = {
 <header class="bg-navy text-white">
   <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
     <div class="flex items-center gap-3">
-      <img src="https://cdn.jsdelivr.net/gh/BabuEiEi/images/obec.png" alt="โลโก้หน่วยงาน" class="w-10 h-10 object-contain">
+      <img src="https://cdn.jsdelivr.net/gh/BabuEiEi/images/obec.png" alt="โลโก้หน่วยงาน" class="w-10 h-10 object-contain bg-white rounded-full p-0.5">
       <h1 class="font-semibold">แผงควบคุมเกียรติบัตร</h1>
       <span id="roleBadge" class="text-xs bg-gold text-navy font-medium px-2 py-0.5 rounded-full hidden"></span>
     </div>
@@ -139,17 +139,17 @@ tailwind.config = {
           </div>
 
           <div>
-            <label class="text-sm font-medium">ข้อความหัวเรื่อง</label>
-            <input type="text" id="titleText" class="w-full border border-line rounded-lg px-3 py-2 text-sm">
+            <label class="text-sm font-medium">ข้อความหัวเรื่อง <span class="text-xs text-gray-400">(กด Enter เพื่อขึ้นบรรทัดใหม่)</span></label>
+            <textarea id="titleText" rows="2" class="w-full border border-line rounded-lg px-3 py-2 text-sm"></textarea>
           </div>
           <div class="grid grid-cols-2 gap-3">
             <div>
               <label class="text-sm font-medium">ข้อความเนื้อหา</label>
-              <input type="text" id="bodyText" class="w-full border border-line rounded-lg px-3 py-2 text-sm">
+              <textarea id="bodyText" rows="2" class="w-full border border-line rounded-lg px-3 py-2 text-sm"></textarea>
             </div>
             <div>
-              <label class="text-sm font-medium">บรรทัดวันที่</label>
-              <input type="text" id="dateLine" class="w-full border border-line rounded-lg px-3 py-2 text-sm">
+              <label class="text-sm font-medium">บรรทัดวันที่/คำอวยพร</label>
+              <textarea id="dateLine" rows="2" class="w-full border border-line rounded-lg px-3 py-2 text-sm"></textarea>
             </div>
           </div>
 

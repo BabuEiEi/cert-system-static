@@ -45,6 +45,29 @@ function loadImage(url) {
   });
 }
 
+
+// วาดข้อความหลายบรรทัด: แยกด้วย \n และตัดบรรทัดอัตโนมัติเมื่อยาวเกิน maxWidth
+// คืนค่า y ของบรรทัดถัดไป
+function drawLines(ctx, text, cx, y, size, lineGap, maxWidth) {
+  const paragraphs = String(text || "").split("\n");
+  for (const para of paragraphs) {
+    if (!para.trim()) { y += size + lineGap; continue; }
+    const words = para.split(" ");
+    let line = "";
+    for (const w of words) {
+      const test = line ? line + " " + w : w;
+      if (ctx.measureText(test).width > maxWidth && line) {
+        ctx.fillText(line, cx, y);
+        y += size + lineGap;
+        line = w;
+      } else line = test;
+    }
+    ctx.fillText(line, cx, y);
+    y += size + lineGap;
+  }
+  return y;
+}
+
 /**
  * วาดเกียรติบัตรลง canvas
  * @param {HTMLCanvasElement} canvas
@@ -96,37 +119,36 @@ async function renderCertificate(canvas, tpl, personName, certNo = "") {
     } catch (e) { console.warn(e.message); }
   }
 
-  // 4) หัวเรื่อง
+  // 4) หัวเรื่อง (รองรับหลายบรรทัด: กด Enter ในช่องกรอก)
   ctx.fillStyle = tpl.titleColor;
   ctx.font = `500 ${tpl.titleSize}px "${family}"`;
-  ctx.fillText(tpl.titleText, cx, y + 40);
+  y = drawLines(ctx, tpl.titleText, cx, y + 40, tpl.titleSize, 14, CERT_W - 300);
 
   // 5) ชื่อผู้รับ
   ctx.fillStyle = tpl.nameColor;
   ctx.font = `700 ${tpl.nameSize}px "${family}"`;
-  ctx.fillText(personName, cx, y + 60 + tpl.nameSize);
+  ctx.fillText(personName, cx, y + tpl.nameSize);
 
   // เส้นใต้ชื่อ
   ctx.strokeStyle = tpl.borderColor || "#C9A227";
   ctx.lineWidth = 3;
   const nameW = Math.max(ctx.measureText(personName).width + 120, 500);
   ctx.beginPath();
-  ctx.moveTo(cx - nameW / 2, y + 90 + tpl.nameSize);
-  ctx.lineTo(cx + nameW / 2, y + 90 + tpl.nameSize);
+  ctx.moveTo(cx - nameW / 2, y + 30 + tpl.nameSize);
+  ctx.lineTo(cx + nameW / 2, y + 30 + tpl.nameSize);
   ctx.stroke();
 
-  // 6) เนื้อหา
+  // 6) เนื้อหา (ทุกส่วนรองรับหลายบรรทัด + ตัดบรรทัดอัตโนมัติ)
   ctx.fillStyle = tpl.bodyColor;
   ctx.font = `400 ${tpl.bodySize}px "${family}"`;
-  let by = y + 170 + tpl.nameSize;
-  ctx.fillText(tpl.bodyText, cx, by);
+  let by = y + 110 + tpl.nameSize;
+  by = drawLines(ctx, tpl.bodyText, cx, by, tpl.bodySize, 12, CERT_W - 300);
   if (tpl.activityLine) {
     ctx.font = `600 ${tpl.bodySize + 6}px "${family}"`;
-    ctx.fillText(tpl.activityLine, cx, by + tpl.bodySize + 30);
-    by += tpl.bodySize + 30;
+    by = drawLines(ctx, tpl.activityLine, cx, by + 8, tpl.bodySize + 6, 14, CERT_W - 340);
   }
   ctx.font = `400 ${tpl.bodySize - 4}px "${family}"`;
-  ctx.fillText(tpl.dateLine, cx, by + tpl.bodySize + 26);
+  drawLines(ctx, tpl.dateLine, cx, by + 14, tpl.bodySize - 4, 12, CERT_W - 300);
 
   // 7) ลายเซ็น (รองรับ 1–3 คน จัดระยะอัตโนมัติ)
   const sigs = (tpl.signatures || []).slice(0, 3);
@@ -150,12 +172,12 @@ async function renderCertificate(canvas, tpl, personName, certNo = "") {
     }
   }
 
-  // 8) เลขที่เกียรติบัตร
+  // 8) เลขที่เกียรติบัตร (มุมขวาบน)
   if (certNo) {
-    ctx.textAlign = "left";
+    ctx.textAlign = "right";
     ctx.fillStyle = "#6B7280";
-    ctx.font = `400 24px "Sarabun"`;
-    ctx.fillText("เลขที่ " + certNo, 80, CERT_H - 80);
+    ctx.font = `400 26px "Sarabun"`;
+    ctx.fillText("เลขที่ " + certNo, CERT_W - 100, 130);
     ctx.textAlign = "center";
   }
 }
