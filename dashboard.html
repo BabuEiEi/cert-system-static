@@ -42,7 +42,7 @@ tailwind.config = {
 <header class="bg-navy text-white">
   <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
     <div class="flex items-center gap-3">
-      <img src="https://cdn.jsdelivr.net/gh/BabuEiEi/images/obec.png" alt="โลโก้หน่วยงาน" class="w-10 h-10 object-contain bg-white rounded-full p-0.5">
+      <img src="https://cdn.jsdelivr.net/gh/BabuEiEi/images/obec.png" alt="โลโก้หน่วยงาน" class="w-10 h-10 object-contain">
       <h1 class="font-semibold">แผงควบคุมเกียรติบัตร</h1>
       <span id="roleBadge" class="text-xs bg-gold text-navy font-medium px-2 py-0.5 rounded-full hidden"></span>
     </div>
@@ -116,21 +116,15 @@ tailwind.config = {
             <input type="url" id="bgImageUrl" placeholder="https://... (เว้นว่างเพื่อใช้สีพื้น)" class="w-full border border-line rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-navy outline-none">
           </div>
 
-          <div class="grid grid-cols-2 gap-3">
-            <div>
-              <label class="text-sm font-medium">ฟอนต์</label>
-              <select id="fontFamily" class="w-full border border-line rounded-lg px-3 py-2 text-sm bg-white">
-                <option value="Sarabun">Sarabun (ราชการ)</option>
-                <option value="Trirong">Trirong (เซอริฟ)</option>
-                <option value="Chonburi">Chonburi (หัวเรื่อง)</option>
-                <option value="Mitr">Mitr</option>
-                <option value="Pridi">Pridi</option>
-              </select>
-            </div>
-            <div>
-              <label class="text-sm font-medium">ขนาดชื่อผู้รับ</label>
-              <input type="number" id="nameSize" min="40" max="140" class="w-full border border-line rounded-lg px-3 py-2 text-sm">
-            </div>
+          <div>
+            <label class="text-sm font-medium">ฟอนต์</label>
+            <select id="fontFamily" class="w-full border border-line rounded-lg px-3 py-2 text-sm bg-white">
+              <option value="Sarabun">Sarabun (ราชการ)</option>
+              <option value="Trirong">Trirong (เซอริฟ)</option>
+              <option value="Chonburi">Chonburi (หัวเรื่อง)</option>
+              <option value="Mitr">Mitr</option>
+              <option value="Pridi">Pridi</option>
+            </select>
           </div>
 
           <div>
@@ -150,6 +144,49 @@ tailwind.config = {
             <div>
               <label class="text-sm font-medium">บรรทัดวันที่/คำอวยพร</label>
               <textarea id="dateLine" rows="2" class="w-full border border-line rounded-lg px-3 py-2 text-sm"></textarea>
+            </div>
+          </div>
+
+          <div>
+            <label class="text-sm font-medium">ชื่อกิจกรรมบนเกียรติบัตร <span class="text-xs text-gray-400">(เว้นว่าง = ใช้ชื่อกิจกรรมของระบบ)</span></label>
+            <textarea id="activityText" rows="2" placeholder="พิมพ์ข้อความเอง กด Enter ขึ้นบรรทัดใหม่ได้" class="w-full border border-line rounded-lg px-3 py-2 text-sm"></textarea>
+          </div>
+
+          <!-- จัดรูปแบบตัวอักษรรายส่วน -->
+          <div class="border-t border-line pt-3">
+            <label class="text-sm font-medium block mb-2">การจัดรูปแบบตัวอักษร</label>
+            <div class="grid grid-cols-12 gap-2 text-xs text-gray-500 mb-1 px-1">
+              <span class="col-span-4">ส่วน</span><span class="col-span-2">ขนาด</span><span class="col-span-2">สี</span><span class="col-span-2 text-center">หนา</span><span class="col-span-2 text-center">เอียง</span>
+            </div>
+            <div class="space-y-1.5">
+              <div class="grid grid-cols-12 gap-2 items-center">
+                <span class="col-span-4 text-sm">หัวเรื่อง</span>
+                <input type="number" id="titleSize" min="20" max="90" class="col-span-2 border border-line rounded px-2 py-1 text-sm">
+                <input type="color" id="titleColor" class="col-span-2 h-8 border border-line rounded cursor-pointer">
+                <input type="checkbox" id="titleBold" class="col-span-2 mx-auto w-4 h-4 accent-navy">
+                <input type="checkbox" id="titleItalic" class="col-span-2 mx-auto w-4 h-4 accent-navy">
+              </div>
+              <div class="grid grid-cols-12 gap-2 items-center">
+                <span class="col-span-4 text-sm">ชื่อผู้รับ</span>
+                <input type="number" id="nameSize" min="40" max="140" class="col-span-2 border border-line rounded px-2 py-1 text-sm">
+                <input type="color" id="nameColor" class="col-span-2 h-8 border border-line rounded cursor-pointer">
+                <input type="checkbox" id="nameBold" class="col-span-2 mx-auto w-4 h-4 accent-navy" checked>
+                <input type="checkbox" id="nameItalic" class="col-span-2 mx-auto w-4 h-4 accent-navy">
+              </div>
+              <div class="grid grid-cols-12 gap-2 items-center">
+                <span class="col-span-4 text-sm">เนื้อหา/วันที่</span>
+                <input type="number" id="bodySize" min="20" max="80" class="col-span-2 border border-line rounded px-2 py-1 text-sm">
+                <input type="color" id="bodyColor" class="col-span-2 h-8 border border-line rounded cursor-pointer">
+                <input type="checkbox" id="bodyBold" class="col-span-2 mx-auto w-4 h-4 accent-navy">
+                <input type="checkbox" id="bodyItalic" class="col-span-2 mx-auto w-4 h-4 accent-navy">
+              </div>
+              <div class="grid grid-cols-12 gap-2 items-center">
+                <span class="col-span-4 text-sm">ชื่อกิจกรรม</span>
+                <input type="number" id="activitySize" min="20" max="90" class="col-span-2 border border-line rounded px-2 py-1 text-sm">
+                <input type="color" id="activityColor" class="col-span-2 h-8 border border-line rounded cursor-pointer">
+                <input type="checkbox" id="activityBold" class="col-span-2 mx-auto w-4 h-4 accent-navy" checked>
+                <input type="checkbox" id="activityItalic" class="col-span-2 mx-auto w-4 h-4 accent-navy">
+              </div>
             </div>
           </div>
 
@@ -178,6 +215,16 @@ tailwind.config = {
           <div class="bg-white border border-line rounded-xl p-5 space-y-3">
             <h3 class="font-semibold text-navy border-b border-line pb-2">รายชื่อผู้เข้าอบรม (<span id="pCount">0</span>)</h3>
             <textarea id="namesInput" rows="4" placeholder="วางรายชื่อ 1 คนต่อบรรทัด เช่น&#10;นางสาวสมศรี ใจดี&#10;นายสมชาย เก่งมาก" class="w-full border border-line rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-navy outline-none"></textarea>
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="text-xs text-gray-500">เลขที่เกียรติบัตรเริ่มต้น</label>
+                <input type="number" id="certStart" min="1" placeholder="ต่อจากเดิมอัตโนมัติ" class="w-full border border-line rounded-lg px-3 py-2 text-sm">
+              </div>
+              <div>
+                <label class="text-xs text-gray-500">ปี พ.ศ. บนเลขที่</label>
+                <input type="text" id="certYear" placeholder="เช่น 2569" class="w-full border border-line rounded-lg px-3 py-2 text-sm">
+              </div>
+            </div>
             <div class="flex flex-wrap gap-2">
               <button id="importNamesBtn" class="bg-navy text-white text-sm px-4 py-2 rounded-lg hover:bg-navy-deep">นำเข้ารายชื่อ</button>
               <button id="genAllBtn" class="bg-navy text-white text-sm font-medium px-4 py-2 rounded-lg hover:bg-navy-deep">สร้าง PNG ทั้งหมด (ZIP)</button>

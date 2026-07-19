@@ -20,13 +20,19 @@ function defaultTemplate() {
     titleText: "เกียรติบัตรฉบับนี้ให้ไว้เพื่อแสดงว่า",
     titleSize: 44,
     titleColor: "#1B2A4A",
+    titleBold: false, titleItalic: false,
     nameSize: 88,
     nameColor: "#1B2A4A",
+    nameBold: true, nameItalic: false,
     bodyText: "ได้ผ่านการอบรมเชิงปฏิบัติการ",
-    activityLine: "",          // ชื่อกิจกรรม (เติมอัตโนมัติจากกิจกรรม)
+    activityLine: "",          // ข้อความชื่อกิจกรรมที่จะวาดจริง (กำหนดเองได้)
+    activitySize: 46,
+    activityColor: "#1B2A4A",
+    activityBold: true, activityItalic: false,
     dateLine: "ให้ไว้ ณ วันที่ ....",
     bodySize: 40,
     bodyColor: "#23272F",
+    bodyBold: false, bodyItalic: false,
     signatures: [
       // { imageUrl, name, position }
     ]
@@ -66,6 +72,11 @@ function drawLines(ctx, text, cx, y, size, lineGap, maxWidth) {
     y += size + lineGap;
   }
   return y;
+}
+
+// สร้าง font string ตามสไตล์ (หนา/เอียง)
+function fontStr(size, family, bold, italic, normalWeight = 400) {
+  return `${italic ? "italic " : ""}${bold ? 700 : normalWeight} ${size}px "${family}"`;
 }
 
 /**
@@ -121,12 +132,12 @@ async function renderCertificate(canvas, tpl, personName, certNo = "") {
 
   // 4) หัวเรื่อง (รองรับหลายบรรทัด: กด Enter ในช่องกรอก)
   ctx.fillStyle = tpl.titleColor;
-  ctx.font = `500 ${tpl.titleSize}px "${family}"`;
+  ctx.font = fontStr(tpl.titleSize, family, tpl.titleBold, tpl.titleItalic, 500);
   y = drawLines(ctx, tpl.titleText, cx, y + 40, tpl.titleSize, 14, CERT_W - 300);
 
   // 5) ชื่อผู้รับ
   ctx.fillStyle = tpl.nameColor;
-  ctx.font = `700 ${tpl.nameSize}px "${family}"`;
+  ctx.font = fontStr(tpl.nameSize, family, tpl.nameBold !== false, tpl.nameItalic);
   ctx.fillText(personName, cx, y + tpl.nameSize);
 
   // เส้นใต้ชื่อ
@@ -140,14 +151,17 @@ async function renderCertificate(canvas, tpl, personName, certNo = "") {
 
   // 6) เนื้อหา (ทุกส่วนรองรับหลายบรรทัด + ตัดบรรทัดอัตโนมัติ)
   ctx.fillStyle = tpl.bodyColor;
-  ctx.font = `400 ${tpl.bodySize}px "${family}"`;
+  ctx.font = fontStr(tpl.bodySize, family, tpl.bodyBold, tpl.bodyItalic);
   let by = y + 110 + tpl.nameSize;
   by = drawLines(ctx, tpl.bodyText, cx, by, tpl.bodySize, 12, CERT_W - 300);
   if (tpl.activityLine) {
-    ctx.font = `600 ${tpl.bodySize + 6}px "${family}"`;
-    by = drawLines(ctx, tpl.activityLine, cx, by + 8, tpl.bodySize + 6, 14, CERT_W - 340);
+    const aSize = tpl.activitySize || (tpl.bodySize + 6);
+    ctx.fillStyle = tpl.activityColor || tpl.bodyColor;
+    ctx.font = fontStr(aSize, family, tpl.activityBold !== false, tpl.activityItalic, 600);
+    by = drawLines(ctx, tpl.activityLine, cx, by + 8, aSize, 14, CERT_W - 340);
   }
-  ctx.font = `400 ${tpl.bodySize - 4}px "${family}"`;
+  ctx.fillStyle = tpl.bodyColor;
+  ctx.font = fontStr(tpl.bodySize - 4, family, tpl.bodyBold, tpl.bodyItalic);
   drawLines(ctx, tpl.dateLine, cx, by + 14, tpl.bodySize - 4, 12, CERT_W - 300);
 
   // 7) ลายเซ็น (รองรับ 1–3 คน จัดระยะอัตโนมัติ)

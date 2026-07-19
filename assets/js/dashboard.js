@@ -117,11 +117,20 @@ function fillForm() {
   F("borderColor").value = tpl.borderColor;
   F("bgImageUrl").value = tpl.bgImageUrl || "";
   F("fontFamily").value = tpl.fontFamily;
-  F("nameSize").value = tpl.nameSize;
   F("logoUrl").value = tpl.logoUrl || "";
   F("titleText").value = tpl.titleText;
   F("bodyText").value = tpl.bodyText;
   F("dateLine").value = tpl.dateLine;
+  F("activityText").value = tpl.activityText || "";
+  // ตารางจัดรูปแบบตัวอักษร
+  F("titleSize").value = tpl.titleSize;       F("titleColor").value = tpl.titleColor;
+  F("titleBold").checked = !!tpl.titleBold;   F("titleItalic").checked = !!tpl.titleItalic;
+  F("nameSize").value = tpl.nameSize;         F("nameColor").value = tpl.nameColor;
+  F("nameBold").checked = tpl.nameBold !== false; F("nameItalic").checked = !!tpl.nameItalic;
+  F("bodySize").value = tpl.bodySize;         F("bodyColor").value = tpl.bodyColor;
+  F("bodyBold").checked = !!tpl.bodyBold;     F("bodyItalic").checked = !!tpl.bodyItalic;
+  F("activitySize").value = tpl.activitySize || 46; F("activityColor").value = tpl.activityColor || "#1B2A4A";
+  F("activityBold").checked = tpl.activityBold !== false; F("activityItalic").checked = !!tpl.activityItalic;
   renderSigList();
 }
 
@@ -130,12 +139,22 @@ function readForm() {
   tpl.borderColor = F("borderColor").value;
   tpl.bgImageUrl = F("bgImageUrl").value.trim();
   tpl.fontFamily = F("fontFamily").value;
-  tpl.nameSize = parseInt(F("nameSize").value) || 88;
   tpl.logoUrl = F("logoUrl").value.trim();
   tpl.titleText = F("titleText").value;
   tpl.bodyText = F("bodyText").value;
   tpl.dateLine = F("dateLine").value;
-  tpl.activityLine = currentActivity ? currentActivity.name : "";
+  // ชื่อกิจกรรมบนเกียรติบัตร: กำหนดเองได้ / เว้นว่าง = ใช้ชื่อกิจกรรมของระบบ
+  tpl.activityText = F("activityText").value;
+  tpl.activityLine = tpl.activityText.trim() || (currentActivity ? currentActivity.name : "");
+  // ตารางจัดรูปแบบตัวอักษร
+  tpl.titleSize = parseInt(F("titleSize").value) || 44;   tpl.titleColor = F("titleColor").value;
+  tpl.titleBold = F("titleBold").checked;                 tpl.titleItalic = F("titleItalic").checked;
+  tpl.nameSize = parseInt(F("nameSize").value) || 88;     tpl.nameColor = F("nameColor").value;
+  tpl.nameBold = F("nameBold").checked;                   tpl.nameItalic = F("nameItalic").checked;
+  tpl.bodySize = parseInt(F("bodySize").value) || 40;     tpl.bodyColor = F("bodyColor").value;
+  tpl.bodyBold = F("bodyBold").checked;                   tpl.bodyItalic = F("bodyItalic").checked;
+  tpl.activitySize = parseInt(F("activitySize").value) || 46; tpl.activityColor = F("activityColor").value;
+  tpl.activityBold = F("activityBold").checked;           tpl.activityItalic = F("activityItalic").checked;
 }
 
 function renderSigList() {
@@ -213,8 +232,9 @@ F("importNamesBtn").onclick = async () => {
   if (!lines.length) return Swal.fire({ icon: "warning", title: "วางรายชื่อก่อนนำเข้า", confirmButtonColor: "#1B2A4A" });
   Swal.fire({ title: "กำลังนำเข้า...", didOpen: () => Swal.showLoading(), allowOutsideClick: false });
   const col = db.collection("activities").doc(currentActivity.id).collection("participants");
-  const year = new Date().getFullYear() + 543;
-  let no = participants.length;
+  const year = (F("certYear").value.trim() || String(new Date().getFullYear() + 543));
+  const startVal = parseInt(F("certStart").value);
+  let no = Number.isFinite(startVal) && startVal > 0 ? startVal - 1 : participants.length;
   const batch = db.batch();
   lines.forEach(name => {
     no++;
