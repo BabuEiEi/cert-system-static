@@ -71,27 +71,32 @@ activityInput.addEventListener("input", () => {
 });
 activityInput.addEventListener("blur", () => setTimeout(() => activityDropdown.classList.add("hidden"), 150));
 
-// ค้นหา: เลือกกิจกรรม → ค้นใน subcollection / ทุกกิจกรรม → collectionGroup
+// ค้นหา: ดึงรายชื่อจากกิจกรรมที่เผยแพร่ แล้วกรองฝั่ง client
+// → รองรับค้นหาบางส่วนของชื่อ เช่น "สมชาย" หรือ "ขยันยิ่ง"
+// → ไม่ใช้ collectionGroup เพราะติดข้อจำกัด security rules แบบ nested
+const participantsCache = {};   // aid → [participants]
+
+async function getParticipants(aid) {
+  if (participantsCache[aid]) return participantsCache[aid];
+  const snap = await db.collection("activities").doc(aid).collection("participants").get();
+  const arr = [];
+  snap.forEach(d => arr.push({ aid, pid: d.id, ...d.data() }));
+  participantsCache[aid] = arr;
+  return arr;
+}
+
 async function search() {
   const q = document.getElementById("nameInput").value.trim();
   if (!q) return Swal.fire({ icon: "warning", title: "กรุณากรอกชื่อ–นามสกุล", confirmButtonColor: "#1B2A4A" });
 
   Swal.fire({ title: "กำลังค้นหา...", didOpen: () => Swal.showLoading(), allowOutsideClick: false });
-  const aid = selectedActivityId;
+  const aids = selectedActivityId ? [selectedActivityId] : Object.keys(activitiesCache);
   let rows = [];
 
   try {
-    if (aid) {
-      const snap = await db.collection("activities").doc(aid)
-        .collection("participants").where("name", "==", q).get();
-      snap.forEach(d => rows.push({ aid, pid: d.id, ...d.data() }));
-    } else {
-      const snap = await db.collectionGroup("participants").where("name", "==", q).get();
-      for (const d of snap.docs) {
-        const parentId = d.ref.parent.parent.id;
-        if (!activitiesCache[parentId]) continue; // แสดงเฉพาะกิจกรรมที่เผยแพร่
-        rows.push({ aid: parentId, pid: d.id, ...d.data() });
-      }
+    for (const aid of aids) {
+      const parts = await getParticipants(aid);
+      rows.push(...parts.filter(p => (p.name || "").includes(q)));
     }
     Swal.close();
     renderResults(rows, q);
@@ -106,7 +111,7 @@ function renderResults(rows, q) {
     resultsEl.innerHTML = `
       <div class="bg-white border border-line rounded-xl p-8 text-center text-gray-500">
         ไม่พบเกียรติบัตรของ "<span class="font-medium text-ink">${q}</span>"<br>
-        <span class="text-sm">โปรดตรวจสอบการสะกดชื่อให้ตรงกับที่ลงทะเบียนไว้ทุกตัวอักษร</span>
+        <span class="text-sm">ลองค้นหาด้วยชื่อหรือนามสกุลเพียงบางส่วน หรือตรวจสอบการสะกด</span>
       </div>`;
     return;
   }
