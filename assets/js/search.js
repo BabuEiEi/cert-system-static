@@ -120,16 +120,53 @@ function renderResults(rows, q) {
     const card = document.createElement("div");
     card.className = "bg-white border border-line rounded-xl p-5 flex flex-col sm:flex-row sm:items-center gap-4 justify-between";
     card.innerHTML = `
-      <div>
+      <div class="flex-1">
         <p class="font-semibold text-navy">${r.name}</p>
-        <p class="text-sm text-gray-600">${act.name || "-"} ${r.certNo ? "· เลขที่ " + formatCertNo(act.template || {}, r.certNo) : ""}</p>
+        <p class="text-sm text-gray-600">${act.name || "-"}</p>
+        ${r.certNo ? `<p class="text-sm text-gray-500">เลขที่ ${formatCertNo(act.template || {}, r.certNo)}</p>` : ""}
       </div>
-      <button class="dl-btn bg-navy text-white font-medium px-5 py-2.5 rounded-lg hover:bg-navy-deep transition">
-        ดาวน์โหลด PNG
-      </button>`;
+      <div class="flex sm:flex-col gap-2 shrink-0">
+        <button class="view-btn flex items-center justify-center gap-2 border border-navy text-navy font-medium px-4 py-2 rounded-lg hover:bg-navy hover:text-white transition" title="ดูเกียรติบัตร">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="w-5 h-5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z"/>
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+          </svg>ดูเกียรติบัตร
+        </button>
+        <button class="dl-btn flex items-center justify-center gap-2 bg-navy text-white font-medium px-4 py-2 rounded-lg hover:bg-navy-deep transition" title="ดาวน์โหลด PNG">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="w-5 h-5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3"/>
+          </svg>ดาวน์โหลด
+        </button>
+      </div>`;
+    card.querySelector(".view-btn").onclick = () => viewCert(r, act);
     card.querySelector(".dl-btn").onclick = () => downloadCert(r, act);
     resultsEl.appendChild(card);
   });
+}
+
+// ดูตัวอย่างเกียรติบัตรใน modal ก่อนดาวน์โหลด
+async function viewCert(row, act) {
+  Swal.fire({ title: "กำลังสร้างตัวอย่าง...", didOpen: () => Swal.showLoading(), allowOutsideClick: false });
+  try {
+    const tpl = { ...defaultTemplate(), ...(act.template || {}) };
+    tpl.activityLine = tpl.activityLine || act.name || "";
+    const canvas = document.getElementById("certCanvas");
+    await renderCertificate(canvas, tpl, row.name, row.certNo || "");
+    const res = await Swal.fire({
+      title: row.name,
+      imageUrl: canvas.toDataURL("image/png"),
+      imageWidth: "100%",
+      imageAlt: "ตัวอย่างเกียรติบัตร",
+      width: "52rem",
+      showCancelButton: true,
+      confirmButtonText: "ดาวน์โหลด PNG",
+      cancelButtonText: "ปิด",
+      confirmButtonColor: "#1B2A4A"
+    });
+    if (res.isConfirmed) downloadCanvasPNG(canvas, `เกียรติบัตร-${row.name}`);
+  } catch (e) {
+    Swal.fire({ icon: "error", title: "สร้างตัวอย่างไม่สำเร็จ", text: e.message, confirmButtonColor: "#1B2A4A" });
+  }
 }
 
 async function downloadCert(row, act) {
